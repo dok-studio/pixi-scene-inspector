@@ -1,0 +1,123 @@
+/*
+  The full-height chain the panel measures against.
+
+  `Shell`'s root is `h-full`, so it needs every ancestor to have a height of its
+  own — the mirror of `apps/chrome/src/panel.css`, where the document *is* the
+  layout. Here it is not: the document holds a canvas as well, and the split
+  below it is what gives each side its size.
+
+  Note what is deliberately missing: any background or colour. The panel's
+  stylesheet paints `body` through `bg-background`, and an inline colour on an
+  ancestor of the shell beats that class — in the light theme the panel would
+  then draw white on white and look broken. Colour belongs to the stand's own
+  left pane, which owns its element.
+*/
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  overflow: hidden;
+}
+
+/*
+  The stand's own chrome — the strip above the canvas.
+
+  Stated here rather than with the panel's Tailwind tokens on purpose: the
+  toolbar belongs to the game's side of the split, and it should not change
+  colour when somebody switches the panel's theme for a screenshot.
+*/
+.stand-pane {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-width: 0;
+  background: #0b0e11;
+  color: #e6e6e6;
+}
+
+.stand-stage {
+  flex: 1 1 auto;
+  min-height: 0;
+  position: relative;
+}
+
+/*
+  The canvas is placed, not stretched.
+
+  Its pixel size is set by the application from the pane it follows, and `inset`
+  would have CSS stretch that buffer to the pane as well — two sources for one
+  size, and a blurred canvas whenever they disagreed by a pixel.
+*/
+.stand-stage canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.stand-toolbar {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  border-bottom: 1px solid #1c2128;
+  font-size: 12px;
+}
+
+.stand-title {
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: #9ae6c4;
+}
+
+.stand-stat {
+  color: #8b98a8;
+}
+
+.stand-stat b {
+  color: #e6e6e6;
+  font-weight: 600;
+}
+
+.stand-group {
+  display: flex;
+  gap: 2px;
+}
+
+.stand-button {
+  padding: 3px 10px;
+  border: 1px solid #263141;
+  border-radius: 4px;
+  background: #151b24;
+  color: #c3ccd8;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.stand-button:hover {
+  border-color: #35465c;
+  color: #eef3f8;
+}
+
+.stand-button.is-on {
+  border-color: #2f9e6b;
+  background: #16342a;
+  color: #9ae6c4;
+}
+
+.stand-spacer {
+  flex: 1 1 auto;
+}
+
+.stand-hint {
+  color: #6b7a8c;
+}
+
+.stand-warn {
+  color: #ffa8a8;
+}

@@ -17,6 +17,7 @@
     "typecheck": "tsc -b && tsc -p apps/playground --noEmit && tsc -p apps/chrome --noEmit",
     "playground": "npm run dev --workspace @scene-inspector/app-playground",
     "build:chrome": "npm run build --workspace @scene-inspector/app-chrome",
+    "assets:playground": "node scripts/playground-assets/generate.mjs",
     "licenses": "node scripts/licenses.mjs",
     "licenses:check": "node scripts/licenses.mjs --check",
     "test": "vitest run",

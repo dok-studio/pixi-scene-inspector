@@ -5,7 +5,13 @@
     "declaration": false,
     "declarationMap": false,
     "noEmit": true,
-    "types": ["vite/client"]
+    "jsx": "react-jsx",
+    "types": ["vite/client", "node"],
+    "paths": {
+      "@scene-inspector/protocol": ["../../packages/protocol/src/index.ts"],
+      "@scene-inspector/core": ["../../packages/core/src/index.ts"],
+      "@scene-inspector/panel": ["../../packages/panel/src/index.ts"]
+    }
   },
-  "include": ["src"]
+  "include": ["src", "vite.config.ts"]
 }

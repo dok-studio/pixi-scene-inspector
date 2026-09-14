@@ -34,8 +34,11 @@ npm run playground   # local playground on http://localhost:5173/
 npm run build:chrome # extension build into apps/chrome/dist
 ```
 
-The playground is a bare PixiJS v8 page — a scene to point the core at without
-loading anything into Chrome.
+The playground is a small Snake game on PixiJS v8 with the panel mounted beside
+it, so the inspector can be driven end to end without loading anything into
+Chrome. Its art and its two hand-written Spine skeletons are generated rather
+than drawn in a tool — `npm run assets:playground` rebuilds them from
+`scripts/playground-assets`, and the output is committed.
 
 ## Loading the extension
 
