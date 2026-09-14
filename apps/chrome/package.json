@@ -1,0 +1,29 @@
+{
+  "name": "@scene-inspector/app-chrome",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Chrome extension build: manifest, content script, DevTools page and panel entry point.",
+  "scripts": {
+    "build": "vite build && vite build --config vite.content.config.ts",
+    "build:watch": "node watch.mjs"
+  },
+  "dependencies": {
+    "@scene-inspector/core": "*",
+    "@scene-inspector/panel": "*",
+    "@scene-inspector/protocol": "*",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.287",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^5.1.0",
+    "autoprefixer": "^10.5.4",
+    "postcss": "^8.5.26",
+    "tailwindcss": "^3.4.19",
+    "tailwindcss-animate": "^1.0.7",
+    "vite": "^8.2.1"
+  }
+}

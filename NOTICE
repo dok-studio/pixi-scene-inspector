@@ -1,0 +1,42 @@
+Scene Inspector for PixiJS
+Copyright (c) 2026 DOK Studio
+
+This project is derived in part from PixiJS DevTools
+(https://github.com/pixijs/devtools), which is licensed under the MIT License.
+
+The following portions of this project are derived from PixiJS DevTools:
+
+Interface (packages/panel):
+  - the component layer used to assemble the panel, including property
+    editors, collapsible sections, the resizable split, the top bar,
+    the theme provider, and UI primitives;
+  - the stylesheet and Tailwind theme (src/globals.css,
+    tailwind.config.js);
+  - the Scene tab, including the tree, its rows and controls, the
+    properties pane, and fuzzy search over property names;
+  - the texture grid on the Assets tab and the selected-texture panel.
+
+Page-side inspection (packages/core):
+  - the duck-typing markers used to identify node types
+    (src/adapters/nodeType.ts);
+  - GPU texture format size tables (src/adapters/texture.ts);
+  - the picker, including tree interaction, hit testing, restoration of
+    node state, and the v6 interaction-plugin fallback
+    (src/adapters/picking.ts);
+  - geometry used to align the highlight with the canvas
+    (src/scene/overlay/geometry.ts);
+  - per-type property lists, grouping, and ordering
+    (src/scene/properties/schema.ts).
+
+The portions derived from PixiJS DevTools are distributed under the MIT
+License. See THIRD_PARTY_LICENSES for the applicable license text and
+attribution.
+
+The extension's icons and the panel's logo are original work of this project.
+No PixiJS artwork or branding is included.
+
+This project is not affiliated with, endorsed by, or sponsored by the PixiJS
+project. PixiJS is a trademark of its respective owners.
+
+Third-party software and artwork bundled with this project are listed in
+THIRD_PARTY_LICENSES.

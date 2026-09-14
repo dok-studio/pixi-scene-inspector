@@ -1,0 +1,17 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "composite": false,
+    "declaration": false,
+    "declarationMap": false,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "types": ["vite/client", "node", "chrome"],
+    "paths": {
+      "@scene-inspector/protocol": ["../../packages/protocol/src/index.ts"],
+      "@scene-inspector/core": ["../../packages/core/src/index.ts"],
+      "@scene-inspector/panel": ["../../packages/panel/src/index.ts"]
+    }
+  },
+  "include": ["src", "vite.config.ts", "vite.content.config.ts"]
+}

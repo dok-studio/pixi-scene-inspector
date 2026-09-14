@@ -1,0 +1,14 @@
+/*
+  The panel fills the DevTools drawer. In the playground the shell is sized by
+  the surrounding two-pane layout; here the document is the layout, and the
+  shell's `h-full` needs a chain of full-height ancestors to measure against.
+*/
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  overflow: hidden;
+}

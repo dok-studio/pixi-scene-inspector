@@ -1,0 +1,430 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+  The panel's stylesheet, ported from the previous project so the interface
+  keeps the appearance it was tuned to.
+
+  One deliberate change: the original opened with
+  `@import url('https://fonts.cdnfonts.com/css/cascadia-code')`. A Chrome
+  extension page may not load anything from a remote host — the Web Store's
+  content security policy forbids it, and the request would simply fail in the
+  published build. The family is still asked for first, so a machine with
+  Cascadia Code installed (it ships with Windows Terminal) looks exactly as
+  before; everything else falls through the same monospace stack the original
+  declared. Bundling the font is a decision for M10.
+
+  Josh's Custom CSS Reset — https://www.joshwcomeau.com/css/custom-css-reset/
+*/
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+}
+
+body {
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  font-family:
+    cascadia code,
+    Menlo,
+    Monaco,
+    'Courier New',
+    monospace;
+}
+
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+input,
+button,
+textarea,
+select {
+  font: inherit;
+}
+
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  overflow-wrap: break-word;
+}
+
+#root,
+#__next {
+  isolation: isolate;
+}
+
+@layer base {
+  :root {
+    /* The light theme reads the other way round from the dark one: there the
+       panel is the ground and a field is a well dug into it, here the field is
+       the white paper and the panel is the desk it lies on. So `--background`
+       is no longer the white it was ported as, and everything that had to stand
+       out *against* white — group headings, the inactive tab, hovers, borders —
+       moved down with it, or it would have been left standing on its own shade. */
+    --background: 240 5% 95%;
+    --foreground: 240 10% 3.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
+
+    --primary: 206 72% 43%;
+    --primary-foreground: 0 0% 98%;
+
+    --secondary: 192 84% 40%;
+    --secondary-foreground: 240 5.9% 10%;
+
+    --muted: 240 5% 89%;
+    --muted-foreground: 240 3.8% 46.1%;
+
+    --accent: 240 5% 89%;
+    --accent-foreground: 240 5.9% 10%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 240 6% 83%;
+    --input: 240 6% 83%;
+    --ring: 240 10% 3.9%;
+
+    --radius: 0.5rem;
+
+    /* A surface that floats over the panel. `--popover` is the panel's own
+       colour, which is fine for a menu of text and wrong for a panel the size
+       of the picker: its lower half would merge into whatever it covers. Both
+       themes lift it off the panel and draw a firmer edge than `--border`.
+       Here it stops short of white, so the fields it carries stay the lightest
+       thing on it — the same order they keep out in the panel. */
+    --raised: 240 5% 98%;
+    --raised-border: 240 6% 72%;
+
+    /* What a hint is filled with — see `ui/tooltip.tsx`. The raised surface in
+       this theme, which already stands off the panel; the dark one lifts it
+       further, because a small label there has less of itself to be seen by
+       than a popover the size of the picker does. */
+    --hint: 240 5% 98%;
+
+    /* What a field is filled with, so a row reads as a place to type before the
+       border is noticed. One colour for all of them — the panel and the picker
+       alike — because a field that changed shade with whatever floats above it
+       would look like a different kind of field. Which side of the panel it
+       falls on is the theme's business: a well below it in the dark, the white
+       paper above it here. */
+    --field: 0 0% 100%;
+
+    --scroll: 0, 0%, 81%;
+    --scrollHover: 0, 0%, 45%;
+
+    /* The Stats charts, one colour per group rather than per chart.
+       Deliberately outside the accent: the accent means "this is a control,
+       and it is on", and twenty charts wearing it made the tab read as a
+       screen of switches. A colour per chart would need a dozen hues in the
+       node-count group alone, all of them arbitrary — the charts are stacked,
+       never overlaid, so nothing has to be told apart by colour. What the
+       colour says instead is which group a chart belongs to, which is the one
+       thing worth knowing while scrolling past twenty of them.
+
+       Fixed hues, but not fixed lightness: a line legible on the dark panel is
+       washed out on the light one. Only the two ends of the ramp differ, so a
+       chart is the same colour in both themes, at the strength that ground
+       needs. */
+    --chart-rendering: 190 75% 38%;
+    --chart-memory: 265 55% 52%;
+    --chart-nodes: 28 85% 42%;
+
+    /* The frame a hovered row outlines on the texture preview.
+       Red, and its own token rather than `--secondary`, which it used to
+       borrow: that one is a teal close enough to the accent and to half the
+       art anybody inspects that the outline went missing on exactly the
+       sheets worth outlining.
+       No dark counterpart, and that is not an omission: this line is drawn
+       over the texture and the preview's own backdrop — chequerboard, black
+       or white, all three the same in either theme — so it has no panel
+       ground to be lifted off. */
+    --frame-outline: 0 90% 60%;
+  }
+
+  .dark {
+    --background: 225 6% 13%;
+    --foreground: 0 0% 98%;
+
+    --card: 225 6% 13%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 225 6% 13%;
+    --popover-foreground: 0 0% 98%;
+
+    --primary: 206 72% 43%;
+    --primary-foreground: 0, 0%, 98%;
+
+    --secondary: 192 84% 40%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 0 0% 24%;
+    --input: 240 3.7% 15.9%;
+    --ring: 240 4.9% 83.9%;
+
+    --raised: 225 6% 19%;
+    --raised-border: 0 0% 38%;
+
+    --hint: 225 6% 26%;
+
+    --field: 225 6% 9%;
+
+    --scroll: 0, 0%, 45%;
+    --scrollHover: 0, 0%, 81%;
+
+    /* The same three hues, lifted for the dark ground. */
+    --chart-rendering: 190 70% 55%;
+    --chart-memory: 265 70% 70%;
+    --chart-nodes: 32 90% 58%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* The panel's accent theme — see `features/settings/accentTheme.ts`. Blue is
+   the default already declared on `--primary` above, so it gets no rule of
+   its own here; the other three override it once `data-accent` says so.
+
+   `--tip-hotkey` is the line a tip ends on — see `ui/tooltip.tsx`. A tip is
+   filled with the accent, so this is the one colour in the panel that has to
+   answer to all four of them at once: a pale gold carries on the blue, the
+   crimson and the green, which are all dark enough to take a tinted line.
+
+   On the gold accent it does not — gold on gold is the one pairing with no
+   contrast to spend — so that theme drops the tint and reads the line in
+   plain white, which is what the prose above it is already set in. The line
+   is still told apart there, by the weight and the break before it rather
+   than by the colour.
+
+   Stated once for both themes, like `--primary` itself: a tip is the accent
+   in the light theme as much as in the dark one, so what stands on it does
+   not change with the theme either. */
+/* What a switch is filled with while it is on, and how far a slider has come
+   — see `ui/switch.tsx` and `ui/slider.tsx`. The accent's own value does not
+   suit either of them everywhere: these two are small and read as one flat
+   patch of colour, where the accent is mostly seen as a border, a word or a
+   wash behind a row. So they are given a colour per theme, stated rather than
+   derived, and tuned against the thing itself. */
+:root {
+  --tip-hotkey: 45 100% 78%;
+  --control-on: 192 84% 40%;
+}
+[data-accent='yellow'] {
+  --primary: 40 100% 42%;
+  --tip-hotkey: 0 0% 100%;
+  --control-on: 40 100% 42%;
+}
+[data-accent='red'] {
+  --primary: 340 70% 44%;
+  --control-on: 340 70% 52%;
+}
+[data-accent='green'] {
+  --primary: 142 55% 38%;
+  --control-on: 142 55% 38%;
+}
+
+::-webkit-scrollbar-thumb {
+  background-clip: padding-box;
+  border: 3px solid transparent;
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: hsl(var(--scroll));
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: hsl(var(--scrollHover));
+}
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track-piece {
+  background-color: 0 0;
+  background: rgba(79, 111, 127, 0.05);
+}
+
+::-webkit-scrollbar-track:hover {
+  background: rgba(79, 111, 127, 0.05);
+}
+
+[role='treeitem'] {
+  color: white;
+  cursor: pointer;
+  text-shadow: 0 1px 2px rgb(0 0 0 / 65%);
+  font-weight: 400;
+  font-size: 14px;
+  user-select: none;
+  border: 1px dashed transparent;
+}
+
+.light [role='treeitem'] {
+  color: black;
+  text-shadow: none;
+}
+
+[role='treeitem']:focus-visible {
+  background-color: rgb(255 255 255 / 20%);
+  outline: none;
+}
+
+[role='treeitem'][aria-selected='true']:focus-visible {
+  background-color: rgba(255, 255, 255, 0.4);
+  outline: none;
+}
+
+[role='treeitem']:hover {
+  background-color: rgb(255 255 255 / 10%);
+}
+
+.light [role='treeitem']:hover {
+  background-color: rgb(0 0 0 / 10%);
+}
+
+[role='treeitem'][aria-selected='true'] {
+  background-color: hsl(var(--primary) / 20%);
+  font-weight: 700;
+}
+
+.light [role='treeitem'][aria-selected='true'] {
+  background-color: hsl(var(--primary) / 80%);
+}
+
+[role='treeitem'] .willReceiveDrop {
+  background-color: rgba(255, 255, 255, 0.4);
+  border: 1px dashed white;
+}
+
+.light [role='treeitem'] .willReceiveDrop {
+  border: 1px dashed black;
+  border-color: rgba(0, 0, 0, 0.4);
+}
+
+[role='treeitem'][aria-selected='true'] {
+  color: white;
+}
+
+/* …but the white stops at the pinned buttons. They are not painted by the row:
+   each carries a surface of its own (`bg-background`, from the outline toggle),
+   so their ink has to answer to that surface rather than to the strip behind it.
+   In the light theme it did not — a white eye on a near-white button on the pink
+   selection was a button with nothing in it. The theme's own foreground is right
+   in both: near-black on the light chip, near-white on the dark one.
+
+   A pressed button is exempt on its own, without an exception here: it fills
+   itself with the accent and names its ink with it. */
+[role='treeitem'][aria-selected='true'] .node-actions {
+  color: hsl(var(--foreground));
+}
+
+/* The row's pinned button group: an opaque background tinted like the row, so a
+   long name hides behind the buttons and the group blends seamlessly on hover
+   and selection. */
+.node-actions {
+  background-color: hsl(var(--background));
+}
+[role='treeitem']:hover .node-actions {
+  background-image: linear-gradient(rgb(255 255 255 / 10%), rgb(255 255 255 / 10%));
+}
+.light [role='treeitem']:hover .node-actions {
+  background-image: linear-gradient(rgb(0 0 0 / 10%), rgb(0 0 0 / 10%));
+}
+[role='treeitem'][aria-selected='true'] .node-actions {
+  background-image: linear-gradient(hsl(var(--primary) / 20%), hsl(var(--primary) / 20%));
+}
+.light [role='treeitem'][aria-selected='true'] .node-actions {
+  background-image: linear-gradient(hsl(var(--primary) / 80%), hsl(var(--primary) / 80%));
+}
+
+/* The chequerboard behind a texture preview, so transparent pixels read as
+   transparent rather than as the panel's background. The previous project
+   shipped it as two SVG files chosen in JavaScript from the stored theme, which
+   picked the light one whenever the theme was "system"; here the pattern is
+   inlined and the theme class does the choosing, as it does everywhere else. */
+.checkerboard {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20'%3E%3Crect width='10' height='10' fill='hsla(0,0%25,15%25,0.75)'/%3E%3Crect x='10' y='10' width='10' height='10' fill='hsla(0,0%25,15%25,0.75)'/%3E%3C/svg%3E");
+}
+
+.light .checkerboard {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20'%3E%3Crect width='10' height='10' fill='hsla(0,0%25,94%25,0.75)'/%3E%3Crect x='10' y='10' width='10' height='10' fill='hsla(0,0%25,94%25,0.75)'/%3E%3C/svg%3E");
+}
+
+/* Number inputs: normal text cursor by default. */
+input[data-number-input] {
+  cursor: text;
+}
+
+/* Alt turns them into scrub handles. */
+body[data-alt='true'] input[data-number-input] {
+  cursor: ew-resize;
+}
+
+/* While scrubbing, the cursor must not flicker when the pointer leaves the
+   input it started on. */
+body[data-scrubbing='true'],
+body[data-scrubbing='true'] * {
+  cursor: ew-resize !important;
+  user-select: none !important;
+}
+
+/* react-colorful ships a fixed 200x200 square with its own rounding, and the
+   panel is narrower than that when the drawer is docked to the side. The square
+   is sized to the popup instead, and the hue bar gives back the height the hex
+   and channel fields under it need. The pointers shrink with the bar, or a
+   12px handle would stand taller than the 10px strip it sits on. */
+.si-color-picker .react-colorful {
+  width: 100%;
+  height: 138px;
+}
+
+.si-color-picker .react-colorful__saturation {
+  margin-bottom: 6px;
+  border-bottom: none;
+  border-radius: 4px;
+}
+
+.si-color-picker .react-colorful__hue {
+  height: 10px;
+  border-radius: 5px;
+}
+
+.si-color-picker .react-colorful__pointer {
+  width: 12px;
+  height: 12px;
+}

@@ -1,0 +1,137 @@
+THIRD-PARTY LICENSES AND NOTICES
+
+Licence and attribution information for the third-party software and artwork
+distributed with Scene Inspector for PixiJS.
+
+Scene Inspector itself is under the MIT License; see LICENSE. What it inherited
+from PixiJS DevTools is described in NOTICE, and the licence covering that
+inheritance is section 1 below.
+
+Sections 1 to 4 are written by hand. They cover code this project carries
+rather than installs, and artwork that sits inside a package under a licence of
+its own. Section 5 is generated from the dependency tree — see
+scripts/licenses.mjs — and reproduces the licence of every package the
+extension bundles.
+
+
+======================================================================
+1. PIXIJS DEVTOOLS
+======================================================================
+
+This project is derived in part from PixiJS DevTools:
+
+https://github.com/pixijs/devtools
+
+The portions derived from it are listed in NOTICE and are distributed under
+the licence below.
+
+MIT License
+
+Copyright (c) 2024 PixiJS
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+
+======================================================================
+2. SHADCN/UI
+======================================================================
+
+Several components in
+
+  packages/panel/src/components/ui
+
+follow shadcn/ui, and some are unchanged copies of it. shadcn/ui is copied
+into a project rather than installed as a dependency, which is why it appears
+here and not in section 5.
+
+https://ui.shadcn.com
+
+MIT License
+
+Copyright (c) 2023 shadcn
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+
+======================================================================
+3. FONT AWESOME FREE (ICON ARTWORK)
+======================================================================
+
+The extension draws most of its glyphs from Font Awesome Free, reached through
+the react-icons package. react-icons is MIT and appears in section 5 under
+that licence; the artwork inside it does not, and is covered here.
+
+Font Awesome Free
+Copyright (c) Fonticons, Inc.
+https://fontawesome.com
+
+The icon artwork is licensed under the Creative Commons Attribution 4.0
+International Public License (CC BY 4.0):
+
+https://creativecommons.org/licenses/by/4.0/
+
+Attribution, as that licence asks for it: this product uses icon artwork from
+Font Awesome Free by Fonticons, Inc. The artwork itself is unmodified — what
+react-icons changes is its packaging, from SVG files into React components.
+
+Use of the artwork does not imply endorsement by Fonticons, Inc., or by the
+owners of any trademarks that individual icons may represent.
+
+
+======================================================================
+4. LUCIDE (ICON ARTWORK)
+======================================================================
+
+The remaining glyphs are Lucide, reached the same way and covered here for the
+same reason.
+
+Lucide
+https://lucide.dev
+
+ISC License
+
+Copyright (c) Lucide Contributors
+
+Permission to use, copy, modify, and/or distribute this software for any
+purpose with or without fee is hereby granted, provided that the above
+copyright notice and this permission notice appear in all copies.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+PERFORMANCE OF THIS SOFTWARE.

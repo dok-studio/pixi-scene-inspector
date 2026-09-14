@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "Scene Inspector for PixiJS",
+  "short_name": "Scene Inspector",
+  "version": "0.0.0",
+  "description": "Inspect and edit the scene graph and textures of PixiJS applications — v6, v7 and v8.",
+  "minimum_chrome_version": "111",
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "devtools_page": "devtools.html",
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "world": "MAIN",
+      "run_at": "document_start"
+    }
+  ]
+}

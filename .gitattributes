@@ -1,0 +1,18 @@
+# Line endings are a property of this project, not of whoever cloned it.
+#
+# Without this file the decision belongs to each machine's `core.autocrlf`:
+# the repository stores LF either way, but a Windows checkout hands the working
+# tree CRLF, and an editor configured differently puts CRLF back into a commit
+# — at which point a one-line change shows up as the whole file rewritten.
+#
+# `eol=lf` settles both halves at once. Every text file is LF in the repository
+# and LF on disk, on every platform. That is already true here — it is this
+# line that keeps it true.
+#
+# It also matters for one file in particular: THIRD_PARTY_LICENSES is generated
+# and then compared against the generator byte for byte. The test normalises
+# line endings before comparing, but only because it could not rely on this.
+* text=auto eol=lf
+
+# Never converted, never diffed as text.
+*.png binary
