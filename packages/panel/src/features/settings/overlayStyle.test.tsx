@@ -121,6 +121,34 @@ describe('useOverlayStyle', () => {
     expect(controls?.style.wrapBox).toEqual(OVERLAY_STYLE_DEFAULTS.wrapBox);
   });
 
+  /**
+   * The outline-only look is a frame of its own here, not a field on the filled
+   * one — so writing to it has to leave the filled frame exactly where it was.
+   * That is the whole point of the two being separate rather than one with a
+   * switch.
+   */
+  it('writes a bare frame without touching the filled one beside it', async () => {
+    await mount();
+    await act(async () => {
+      controls?.set('bareSelected.stroke', '#00ff00');
+      controls?.set('bareSelected.strokeWidth', 4);
+    });
+
+    expect(controls?.style.bareSelected.stroke).toBe('#00ff00');
+    expect(controls?.style.bareSelected.strokeWidth).toBe(4);
+    expect(controls?.style.selected).toEqual(OVERLAY_STYLE_DEFAULTS.selected);
+  });
+
+  /** The two bare frames are separate too: they are what tells them apart. */
+  it('keeps the two bare frames apart', async () => {
+    await mount();
+    await act(async () => {
+      controls?.set('bareSelected.stroke', '#00ff00');
+    });
+
+    expect(controls?.style.bareHover).toEqual(OVERLAY_STYLE_DEFAULTS.bareHover);
+  });
+
   /** Nothing may put a string where a width goes and leave the overlay undrawable. */
   it('drops a write that names no setting, and one of the wrong shape', async () => {
     await mount();

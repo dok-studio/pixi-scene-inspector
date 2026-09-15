@@ -1,4 +1,10 @@
-import type { AxesMode, AxesPin, NodeId, OverlayStyle } from '@scene-inspector/protocol';
+import type {
+  AxesMode,
+  AxesPin,
+  HighlightMode,
+  NodeId,
+  OverlayStyle,
+} from '@scene-inspector/protocol';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { useLocalStorage } from '../../../lib/localStorage.js';
@@ -29,12 +35,13 @@ import { scaleInterval, usePollRate } from '../../../transport/pollRate.js';
 const INTERVAL_MS = 100;
 
 export interface OverlayControls {
-  highlight: boolean;
+  /** How much of the frame is drawn — see `HighlightMode`. */
+  highlight: HighlightMode;
   picker: boolean;
   /**
    * The wrap box of the selected caption, and how much of the origin gizmo is
-   * drawn. Both ride on the highlight rather than standing beside it — see
-   * `overlay.ts` in core.
+   * drawn. Each stands on its own: a switch here draws what it names and
+   * nothing else — see `overlay.ts` in core.
    */
   wrapBox: boolean;
   axes: AxesMode;
@@ -44,7 +51,7 @@ export interface OverlayControls {
    * scene by pointing at it instead of by typing a number.
    */
   transform: boolean;
-  setHighlight: (value: boolean) => void;
+  setHighlight: (value: HighlightMode) => void;
   setPicker: (value: boolean) => void;
   setWrapBox: (value: boolean) => void;
   setAxes: (value: AxesMode) => void;
@@ -76,7 +83,7 @@ export function useOverlay(
   // Neither switch is remembered. Both change what the inspected page draws,
   // and a panel that reopens with the picker armed steals the next click on the
   // application; the highlight is the state to come back to instead.
-  const [highlight, setHighlight] = useState(true);
+  const [highlight, setHighlight] = useState<HighlightMode>('fill');
   const [picker, setPicker] = useState(false);
   const [transform, setTransform] = useState(false);
   /*
@@ -203,7 +210,15 @@ export function useOverlay(
       cancelled = true;
       clearTimeout(timer);
       // Leaving the tab must not leave a div over the application's canvas.
-      client.send('overlay.config', { highlight: false, picker: false, transform: false });
+      // Every switch, spelled out: each draws on its own now, and the two that
+      // are on when nothing is said would keep the overlay installed.
+      client.send('overlay.config', {
+        highlight: 'off',
+        picker: false,
+        transform: false,
+        wrapBox: false,
+        axes: 'off',
+      });
     };
   }, [client]);
 

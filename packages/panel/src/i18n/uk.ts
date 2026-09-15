@@ -103,7 +103,7 @@ export const uk: Messages = {
   // «Натисніть»: різниця між toggle і cycle сказана в самому реченні, а рядок
   // із клавішею відповідає на одне питання — що натиснути.
   'scene.overlay.highlight':
-    'Підсвічувати вибраний вузол на сцені, а також той, що зараз під курсором. [[Натисніть {key}]]',
+    'Обводити вибраний вузол на сцені й той, що під курсором. Клік перебирає: із заливкою, лише рамка, вимкнено. [[Натисніть {key}]]',
   'scene.overlay.wrapBox':
     'Малювати рамку, всередині якої переноситься вибраний текст. [[Натисніть {key}]]',
   'scene.overlay.axes':
@@ -238,6 +238,8 @@ export const uk: Messages = {
   'ui.textList.onePerLine': 'По одному запису на рядок',
   'ui.split.drag': 'Тягніть, щоб поділити дві половини',
   // ── settings: the overlay's own colours ──────────────────────────────────
+  'settings.overlay.filled': 'Рамка з заливкою',
+  'settings.overlay.bare': 'Рамка без заливки',
   'settings.overlay.selected': 'Вибране',
   'settings.overlay.hovered': 'Під курсором',
   'settings.overlay.wrapBox': 'Рамка переносу',

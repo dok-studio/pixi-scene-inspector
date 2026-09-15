@@ -50,6 +50,7 @@ export default {
           foreground: 'hsl(var(--popover-foreground))',
         },
         raised: 'hsl(var(--raised))',
+        sunken: 'hsl(var(--sunken))',
         'raised-border': 'hsl(var(--raised-border))',
         'frame-outline': 'hsl(var(--frame-outline))',
         hint: 'hsl(var(--hint))',

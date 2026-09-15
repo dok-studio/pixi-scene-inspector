@@ -12,6 +12,7 @@ export type {
   DetectionSource,
   GradientFill,
   GradientStop,
+  HighlightMode,
   NodeId,
   OutlineStyle,
   OverlayStyle,

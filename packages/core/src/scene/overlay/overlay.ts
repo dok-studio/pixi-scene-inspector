@@ -1,6 +1,7 @@
 import type {
   AxesMode,
   AxesPin,
+  HighlightMode,
   NodeId,
   OutlineStyle,
   OverlayStyle,
@@ -118,22 +119,27 @@ const AXIS_COLOUR = {
 };
 
 export interface OverlayConfig {
-  highlight: boolean;
+  /** How much of the frame is drawn — see `HighlightMode`. */
+  highlight: HighlightMode;
   picker: boolean;
   /**
-   * Whether the wrap box is drawn with the highlight. It rides on the highlight
-   * rather than standing beside it: nothing is installed for it, and switching
-   * it off leaves the frame undrawn rather than the overlay gone.
+   * Whether the wrap box is drawn.
+   *
+   * **On its own, not riding on the highlight.** They used to be one switch and
+   * a half, which meant taking the wash off a caption to read it took the
+   * measurement off with it — and the measurement is usually why anyone turned
+   * the wash off. Each switch answers for what it draws and for nothing else.
    */
   wrapBox: boolean;
   /**
-   * How much of the origin gizmo is drawn with the highlight — the whole sign,
-   * the point on its own, or nothing. Rides on the highlight too.
+   * How much of the origin gizmo is drawn — the whole sign, the point on its
+   * own, or nothing. Independent of the highlight, the same as `wrapBox`.
    */
   axes: AxesMode;
   /**
    * Nodes with a gizmo of their own, on top of the selected and the hovered
-   * one. They obey `axes` and `highlight` like everything else here.
+   * one. They obey `axes`, which is the switch that says how much of a gizmo
+   * is drawn at all.
    */
   pinned: AxesPin[];
   /**
@@ -145,9 +151,8 @@ export interface OverlayConfig {
   /**
    * Whether the selected node gets a frame that can be dragged, scaled and
    * turned — see `freeTransform.ts`. Unlike everything else here it **writes to
-   * the scene**, so it stands on its own rather than riding on the highlight:
-   * the frame is the tool, and someone reaching for it should not have to work
-   * out which other switch it is hiding under.
+   * the scene**, which is why it is last in the panel's row rather than why it
+   * stands on its own: every switch here stands on its own.
    */
   transform: boolean;
   /**
@@ -215,6 +220,37 @@ function paintOutline(element: SVGPolygonElement, style: OutlineStyle): void {
     strokeOpacity: String(style.strokeOpacity),
     strokeWidth: String(style.strokeWidth),
   });
+}
+
+/**
+ * Whether a configuration puts anything on the page at all.
+ *
+ * Five switches, and the overlay is installed if any one of them draws. That is
+ * a longer answer than "is the highlight on", and it is the point: each switch
+ * owns what it draws, so each has to be asked before the div and the render
+ * hook can go.
+ */
+function draws(config: OverlayConfig): boolean {
+  return (
+    config.highlight !== 'off' ||
+    config.picker ||
+    config.transform ||
+    config.wrapBox ||
+    config.axes !== 'off'
+  );
+}
+
+/**
+ * A fill-less frame as something `paintOutline` can take — `'outline'`, the
+ * middle setting of the highlight.
+ *
+ * The colour of the fill that is not being drawn is the one thing this has to
+ * invent, and what it invents is irrelevant: the opacity is zero. Black rather
+ * than the frame's own colour so that nothing downstream can read a fill out of
+ * this and believe it.
+ */
+function unfilled(style: WrapBoxStyle): OutlineStyle {
+  return { fill: '#000000', fillOpacity: 0, ...style };
 }
 
 function paintWrap(element: SVGPathElement, style: WrapBoxStyle): void {
@@ -483,7 +519,7 @@ export function createOverlay(
 
   let attached = false;
   let config: OverlayConfig = {
-    highlight: false,
+    highlight: 'off',
     picker: false,
     wrapBox: true,
     axes: 'arrows',
@@ -516,22 +552,27 @@ export function createOverlay(
   };
 
   /**
-   * The style last painted on, as the string it was compared by.
+   * The paint last laid down, as the string it was compared by.
    *
    * `configure()` runs on every poll and the style changes only when someone is
    * in the settings, so writing eleven properties ten times a second would be
    * eleven ways to dirty the page's style for nothing. Serialising a handful of
    * fields is cheap at that rate — this is not the render loop, which is what
    * `layout()` guards against and why that one compares rectangles instead.
+   *
+   * The highlight's setting is part of the key, not just the style: `'outline'`
+   * paints the same style differently, and a key that could not tell the two
+   * apart would leave the wash on until something else in the settings moved.
    */
   let painted: string | null = null;
 
-  const paint = (next: OverlayStyle): void => {
-    const key = JSON.stringify(next);
+  const paint = (next: OverlayStyle, mode: HighlightMode): void => {
+    const key = JSON.stringify([next, mode]);
     if (key === painted || elements === null) return;
 
-    paintOutline(elements.selectedBox, next.selected);
-    paintOutline(elements.hoverBox, next.hover);
+    const bare = mode === 'outline';
+    paintOutline(elements.selectedBox, bare ? unfilled(next.bareSelected) : next.selected);
+    paintOutline(elements.hoverBox, bare ? unfilled(next.bareHover) : next.hover);
     paintWrap(elements.wrapBox, next.wrapBox);
     painted = key;
   };
@@ -777,20 +818,27 @@ export function createOverlay(
 
     layout(current);
 
-    // Resolved once and used twice: the highlight is a way of looking at the
-    // selected node and the frame is a way of moving it, and the second does not
-    // wait on the first being switched on.
+    /*
+     * The two nodes everything here is drawn from, resolved once each.
+     *
+     * Once, and **before any switch is consulted**: four things are drawn on
+     * these two nodes — the frame, the wrap box, the gizmo and the free
+     * transform — and each is switched on and off on its own. Resolving them
+     * behind the highlight, as this used to, quietly made the other three
+     * depend on it.
+     */
     const chosen = live(current, selected);
-    const selectedNode = config.highlight ? chosen : null;
-    place(current, elements.selectedBox, selectedNode);
     // The hovered node is not drawn twice when it is also the selected one.
-    const hoverNode = config.highlight && hovered !== selected ? live(current, hovered) : null;
-    place(current, elements.hoverBox, hoverNode);
+    const under = hovered !== selected ? live(current, hovered) : null;
+
+    const framed = config.highlight !== 'off';
+    place(current, elements.selectedBox, framed ? chosen : null);
+    place(current, elements.hoverBox, framed ? under : null);
 
     // The selected node only: a wrap box is read off a caption's style rather
     // than measured, and drawing one for whatever the pointer is passing over
     // would put a frame on screen for every text in a list being scrolled past.
-    placeWrap(current, elements.wrapBox, config.wrapBox ? selectedNode : null, config.style.wrapBox);
+    placeWrap(current, elements.wrapBox, config.wrapBox ? chosen : null, config.style.wrapBox);
 
     // The gizmo does follow the pointer, unlike the wrap box: it costs three
     // `toGlobal` calls on a node the tree is already showing, and where the
@@ -803,17 +851,17 @@ export function createOverlay(
     const automatic = (id: NodeId | null, node: Node | null): Node | null =>
       id !== null && pinnedIds.has(id) ? null : node;
 
-    placeAxes(current, elements.selectedAxes, automatic(selected, selectedNode), config.axes);
-    placeAxes(current, elements.hoverAxes, automatic(hovered, hoverNode), config.axes);
+    placeAxes(current, elements.selectedAxes, automatic(selected, chosen), config.axes);
+    placeAxes(current, elements.hoverAxes, automatic(hovered, under), config.axes);
 
-    // Pins ride on the highlight, the same as the two above, so one switch
-    // still takes everything the overlay draws off the page.
+    // A pin answers to `axes` and to nothing else: `axes` says how much of a
+    // gizmo is drawn, and pinning is the panel's way of saying which nodes get
+    // one beyond the two the overlay already follows.
     config.pinned.forEach((entry, index) => {
       const element = pin(index);
       if (element === null) return;
 
-      const node = config.highlight ? live(current, entry.id) : null;
-      placeAxes(current, element, node, config.axes, entry.label);
+      placeAxes(current, element, live(current, entry.id), config.axes, entry.label);
     });
 
     // The pool outlives the pins, so whatever it is still holding is emptied.
@@ -866,8 +914,11 @@ export function createOverlay(
       config = next;
 
       // Nothing on means nothing installed: no div in the page, no proxy on the
-      // renderer, nothing between the application and its own frame.
-      if (!next.highlight && !next.picker && !next.transform) {
+      // renderer, nothing between the application and its own frame. Every
+      // switch counts, now that every switch draws something of its own — the
+      // highlight going off used to take the whole overlay with it, which is
+      // the same bug as the gizmo going off with it, seen from the other end.
+      if (!draws(next)) {
         detach();
         return;
       }
@@ -876,15 +927,10 @@ export function createOverlay(
       if (elements === null) return;
 
       elements.root.style.pointerEvents = next.picker ? 'auto' : 'none';
-      paint(next.style);
-      if (!next.highlight) {
-        setPoints(elements.selectedBox, null);
-        setPoints(elements.hoverBox, null);
-        elements.wrapBox.setAttribute('d', '');
-        hide(elements.selectedAxes.root);
-        hide(elements.hoverAxes.root);
-        for (const element of pins) hide(element.root);
-      }
+      paint(next.style, next.highlight);
+      // Whatever a switch has just taken off the page is cleared by `update()`,
+      // which places every element from the configuration above — a node it is
+      // not to draw reaches it as `null` and empties its element.
       update();
     },
 

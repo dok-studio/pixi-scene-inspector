@@ -13,10 +13,13 @@ import { buildSkeleton } from './skeleton.mjs';
 /**
  * Draws every asset the playground ships and writes it into `public/`.
  *
- * Run rarely and on purpose — `npm run assets:playground` — with the output
- * committed. The art is generated rather than drawn in a tool for two reasons:
- * it is reproducible, and it is unambiguously ours, which the assets a stand
- * borrows from someone else's examples repository are not.
+ * Run rarely and on purpose — `node scripts/playground-assets/generate.mjs` —
+ * with the output committed. There is no npm script for it: the art changes
+ * about never, and a line in `package.json` reads as part of the routine.
+ *
+ * Generated rather than drawn in a tool for two reasons: it is reproducible,
+ * and it is unambiguously ours, which the assets a stand borrows from someone
+ * else's examples repository are not.
  */
 
 const here = dirname(fileURLToPath(import.meta.url));

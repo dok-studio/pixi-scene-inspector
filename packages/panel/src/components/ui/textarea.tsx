@@ -36,6 +36,16 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
       }
 
       el.style.height = `${String(next)}px`;
+
+      // `scrollHeight` measures the content and its padding, but the height
+      // just set is a border box — so the border comes off the part that can
+      // be seen, and on a box that does not wrap so does the horizontal
+      // scrollbar the browser lays inside it. The border alone is a pixel and
+      // never showed; the bar is 10 against a 16px line, and the last entry of
+      // a class list read as a column came out with a grey stripe across it.
+      // Measure what was taken and give it back.
+      const taken = el.offsetHeight - el.clientHeight;
+      if (taken > 0) el.style.height = `${String(next + taken)}px`;
     }, [autoSize, minRows, maxRows]);
 
     React.useLayoutEffect(() => {

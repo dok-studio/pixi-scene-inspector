@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-import type { AxesMode, Json, OverlayStyle, Rect } from '@scene-inspector/protocol';
+import type { AxesMode, HighlightMode, Json, OverlayStyle, Rect } from '@scene-inspector/protocol';
 import { DEFAULT_PICK_DEPTH, OVERLAY_STYLE_DEFAULTS } from '@scene-inspector/protocol';
 import { afterEach, describe, expect, it } from 'vitest';
 
@@ -99,7 +99,7 @@ describe('createOverlay', () => {
     const node = {};
     const overlay = createOverlay(() => fakeAdapter({ x: -300, y: 900, width: 200, height: 200 }), registry, frame, createLocks());
 
-    overlay.configure({ highlight: true, picker: false, wrapBox: true, axes: 'off', pinned: [], transform: false, style: OVERLAY_STYLE_DEFAULTS, pickDepth: DEFAULT_PICK_DEPTH });
+    overlay.configure({ highlight: 'fill', picker: false, wrapBox: true, axes: 'off', pinned: [], transform: false, style: OVERLAY_STYLE_DEFAULTS, pickDepth: DEFAULT_PICK_DEPTH });
     overlay.setSelected(registry.idOf(node));
 
     expect(root().style.overflow).toBe('hidden');
@@ -128,7 +128,7 @@ describe('createOverlay', () => {
       createLocks(),
     );
 
-    overlay.configure({ highlight: true, picker: false, wrapBox: true, axes: 'off', pinned: [], transform: false, style: OVERLAY_STYLE_DEFAULTS, pickDepth: DEFAULT_PICK_DEPTH });
+    overlay.configure({ highlight: 'fill', picker: false, wrapBox: true, axes: 'off', pinned: [], transform: false, style: OVERLAY_STYLE_DEFAULTS, pickDepth: DEFAULT_PICK_DEPTH });
     overlay.setSelected(registry.idOf(broken));
 
     expect(selectedOutline().getAttribute('points')).toBe('');
@@ -144,7 +144,7 @@ describe('createOverlay', () => {
     const node = {};
     const overlay = createOverlay(() => fakeAdapter({ x: -300, y: 900, width: 200, height: 200 }), registry, frame, createLocks());
 
-    overlay.configure({ highlight: true, picker: false, wrapBox: true, axes: 'off', pinned: [], transform: false, style: OVERLAY_STYLE_DEFAULTS, pickDepth: DEFAULT_PICK_DEPTH });
+    overlay.configure({ highlight: 'fill', picker: false, wrapBox: true, axes: 'off', pinned: [], transform: false, style: OVERLAY_STYLE_DEFAULTS, pickDepth: DEFAULT_PICK_DEPTH });
     overlay.setSelected(registry.idOf(node));
 
     // This node answers no probe of its own, so the adapter's axis-aligned
@@ -169,7 +169,7 @@ describe('createOverlay', () => {
     const registry = createRegistry();
     const node = {};
     const adapter = fakeAdapter({ x: 10, y: 20, width: 30, height: 40 });
-    const settings: OverlayConfig = { highlight: true, picker: false, wrapBox: true, axes: 'arrows', pinned: [], transform: false, style: OVERLAY_STYLE_DEFAULTS, pickDepth: DEFAULT_PICK_DEPTH };
+    const settings: OverlayConfig = { highlight: 'fill', picker: false, wrapBox: true, axes: 'arrows', pinned: [], transform: false, style: OVERLAY_STYLE_DEFAULTS, pickDepth: DEFAULT_PICK_DEPTH };
     const overlay = createOverlay(() => adapter, registry, frame, createLocks());
 
     overlay.configure(settings);
@@ -183,13 +183,33 @@ describe('createOverlay', () => {
     expect(selectedOutline().getAttribute('points')).toBe('');
   });
 
-  /** Switching both off leaves nothing behind, clipping container included. */
+  /** Every switch off leaves nothing behind, clipping container included. */
   it('takes the root out of the page when nothing is on', () => {
     const overlay = createOverlay(() => fakeAdapter({ x: 0, y: 0, width: 10, height: 10 }), createRegistry(), frame, createLocks());
 
-    overlay.configure({ highlight: true, picker: false, wrapBox: true, axes: 'off', pinned: [], transform: false, style: OVERLAY_STYLE_DEFAULTS, pickDepth: DEFAULT_PICK_DEPTH });
-    overlay.configure({ highlight: false, picker: false, wrapBox: true, axes: 'off', pinned: [], transform: false, style: OVERLAY_STYLE_DEFAULTS, pickDepth: DEFAULT_PICK_DEPTH });
+    overlay.configure({ highlight: 'fill', picker: false, wrapBox: true, axes: 'off', pinned: [], transform: false, style: OVERLAY_STYLE_DEFAULTS, pickDepth: DEFAULT_PICK_DEPTH });
+    overlay.configure({ highlight: 'off', picker: false, wrapBox: false, axes: 'off', pinned: [], transform: false, style: OVERLAY_STYLE_DEFAULTS, pickDepth: DEFAULT_PICK_DEPTH });
 
+    expect(document.body.firstElementChild).toBeNull();
+  });
+
+  /**
+   * "Nothing is on" is every switch, not the highlight standing for all of
+   * them. The wrap box and the gizmo draw on their own now, so tearing the
+   * overlay down while either is asking for something would take the thing
+   * being asked for off the page.
+   */
+  it('stays in the page for a switch other than the highlight', () => {
+    const overlay = createOverlay(() => fakeAdapter({ x: 0, y: 0, width: 10, height: 10 }), createRegistry(), frame, createLocks());
+    const off: OverlayConfig = { highlight: 'off', picker: false, wrapBox: false, axes: 'off', pinned: [], transform: false, style: OVERLAY_STYLE_DEFAULTS, pickDepth: DEFAULT_PICK_DEPTH };
+
+    overlay.configure({ ...off, wrapBox: true });
+    expect(document.body.firstElementChild).not.toBeNull();
+
+    overlay.configure({ ...off, axes: 'arrows' });
+    expect(document.body.firstElementChild).not.toBeNull();
+
+    overlay.configure(off);
     expect(document.body.firstElementChild).toBeNull();
   });
 });
@@ -206,7 +226,7 @@ describe('createOverlay layout', () => {
   it('measures without writing while the canvas stays where it is', () => {
     const overlay = createOverlay(() => fakeAdapter({ x: 0, y: 0, width: 10, height: 10 }), createRegistry(), frame, createLocks());
 
-    overlay.configure({ highlight: true, picker: false, wrapBox: true, axes: 'off', pinned: [], transform: false, style: OVERLAY_STYLE_DEFAULTS, pickDepth: DEFAULT_PICK_DEPTH });
+    overlay.configure({ highlight: 'fill', picker: false, wrapBox: true, axes: 'off', pinned: [], transform: false, style: OVERLAY_STYLE_DEFAULTS, pickDepth: DEFAULT_PICK_DEPTH });
     // The first pass has nothing to compare against and does the full work.
     const measured = countMeasurements(root());
 
@@ -232,7 +252,7 @@ describe('createOverlay layout', () => {
       createLocks(),
     );
 
-    overlay.configure({ highlight: true, picker: false, wrapBox: true, axes: 'off', pinned: [], transform: false, style: OVERLAY_STYLE_DEFAULTS, pickDepth: DEFAULT_PICK_DEPTH });
+    overlay.configure({ highlight: 'fill', picker: false, wrapBox: true, axes: 'off', pinned: [], transform: false, style: OVERLAY_STYLE_DEFAULTS, pickDepth: DEFAULT_PICK_DEPTH });
     const measured = countMeasurements(root());
 
     size.width = 1024;
@@ -267,7 +287,7 @@ describe('createOverlay wrap box', () => {
       createLocks(),
     );
 
-    overlay.configure({ highlight: true, picker: false, wrapBox: true, axes: 'off', pinned: [], transform: false, style: OVERLAY_STYLE_DEFAULTS, pickDepth: DEFAULT_PICK_DEPTH });
+    overlay.configure({ highlight: 'fill', picker: false, wrapBox: true, axes: 'off', pinned: [], transform: false, style: OVERLAY_STYLE_DEFAULTS, pickDepth: DEFAULT_PICK_DEPTH });
     overlay.setSelected(registry.idOf(node));
 
     // Last on the sheet, over the two highlights the caption may be sitting in.
@@ -307,30 +327,39 @@ describe('createOverlay wrap box', () => {
     expect(shape(overlayFor({ 'style.wordWrapWidth': 260 }).box)).toBe('');
   });
 
-  /** The frame belongs to the highlight, and goes when the highlight goes. */
-  it('goes away with the highlight', () => {
+  /**
+   * **It does not go with the highlight**, and that is the whole point of the
+   * switch being its own.
+   *
+   * Reading what a caption was told to wrap inside is exactly the moment the
+   * wash over it is in the way, so taking the wash off used to take the
+   * measurement with it — and there was no way to have one without the other.
+   */
+  it('stays when the highlight goes', () => {
     const { overlay, box } = overlayFor(WRAPPED);
+    const drawn = shape(box);
 
-    overlay.configure({ highlight: false, picker: true, wrapBox: true, axes: 'off', pinned: [], transform: false, style: OVERLAY_STYLE_DEFAULTS, pickDepth: DEFAULT_PICK_DEPTH });
+    overlay.configure({ highlight: 'off', picker: false, wrapBox: true, axes: 'off', pinned: [], transform: false, style: OVERLAY_STYLE_DEFAULTS, pickDepth: DEFAULT_PICK_DEPTH });
 
-    expect(shape(box)).toBe('');
+    expect(shape(box)).toBe(drawn);
+    expect(selectedOutline().getAttribute('points')).toBe('');
   });
 
   /**
    * Switched off from the panel, the frame is undrawn and nothing else changes:
-   * the highlight it rides on stays exactly where it was.
+   * the highlight beside it stays exactly where it was.
    */
   it('is undrawn when the panel switches it off, highlight and all', () => {
     const { overlay, box } = overlayFor(WRAPPED);
     const drawn = shape(box);
     const outlined = selectedOutline().getAttribute('points');
 
-    overlay.configure({ highlight: true, picker: false, wrapBox: false, axes: 'off', pinned: [], transform: false, style: OVERLAY_STYLE_DEFAULTS, pickDepth: DEFAULT_PICK_DEPTH });
+    overlay.configure({ highlight: 'fill', picker: false, wrapBox: false, axes: 'off', pinned: [], transform: false, style: OVERLAY_STYLE_DEFAULTS, pickDepth: DEFAULT_PICK_DEPTH });
 
     expect(shape(box)).toBe('');
     expect(selectedOutline().getAttribute('points')).toBe(outlined);
 
-    overlay.configure({ highlight: true, picker: false, wrapBox: true, axes: 'off', pinned: [], transform: false, style: OVERLAY_STYLE_DEFAULTS, pickDepth: DEFAULT_PICK_DEPTH });
+    overlay.configure({ highlight: 'fill', picker: false, wrapBox: true, axes: 'off', pinned: [], transform: false, style: OVERLAY_STYLE_DEFAULTS, pickDepth: DEFAULT_PICK_DEPTH });
     expect(shape(box)).toBe(drawn);
   });
 });
@@ -362,7 +391,7 @@ describe('createOverlay origin axes', () => {
       createLocks(),
     );
 
-    overlay.configure({ highlight: true, picker: false, wrapBox: false, axes, pinned: [], transform: false, style: OVERLAY_STYLE_DEFAULTS, pickDepth: DEFAULT_PICK_DEPTH });
+    overlay.configure({ highlight: 'fill', picker: false, wrapBox: false, axes, pinned: [], transform: false, style: OVERLAY_STYLE_DEFAULTS, pickDepth: DEFAULT_PICK_DEPTH });
     overlay.setSelected(registry.idOf(node));
 
     // Third of the root's children — the sheet, the hovered node's gizmo, then
@@ -410,13 +439,15 @@ describe('createOverlay origin axes', () => {
     expect(overlayFor('off').gizmo.style.transform).toBe('scale(0)');
   });
 
-  /** It belongs to the highlight, and goes when the highlight goes. */
-  it('goes away with the highlight', () => {
+  /** Its own switch: where a node's zero is, is a question the frame does not
+   *  answer and does not gate. */
+  it('stays when the highlight goes', () => {
     const { overlay, gizmo } = overlayFor('arrows');
+    const placed = gizmo.style.transform;
 
-    overlay.configure({ highlight: false, picker: true, wrapBox: false, axes: 'arrows', pinned: [], transform: false, style: OVERLAY_STYLE_DEFAULTS, pickDepth: DEFAULT_PICK_DEPTH });
+    overlay.configure({ highlight: 'off', picker: false, wrapBox: false, axes: 'arrows', pinned: [], transform: false, style: OVERLAY_STYLE_DEFAULTS, pickDepth: DEFAULT_PICK_DEPTH });
 
-    expect(gizmo.style.transform).toBe('scale(0)');
+    expect(gizmo.style.transform).toBe(placed);
   });
 
   /** Nothing in a scene guarantees a transform; a node without one is not drawn on. */
@@ -424,7 +455,7 @@ describe('createOverlay origin axes', () => {
     const registry = createRegistry();
     const overlay = createOverlay(() => fakeAdapter({ x: 0, y: 0, width: 10, height: 10 }), registry, frame, createLocks());
 
-    overlay.configure({ highlight: true, picker: false, wrapBox: false, axes: 'arrows', pinned: [], transform: false, style: OVERLAY_STYLE_DEFAULTS, pickDepth: DEFAULT_PICK_DEPTH });
+    overlay.configure({ highlight: 'fill', picker: false, wrapBox: false, axes: 'arrows', pinned: [], transform: false, style: OVERLAY_STYLE_DEFAULTS, pickDepth: DEFAULT_PICK_DEPTH });
     overlay.setSelected(registry.idOf({}));
 
     expect((root().children[2] as SVGElement).style.transform).toBe('scale(0)');
@@ -441,9 +472,11 @@ describe('createOverlay origin axes', () => {
  * would put the ink back on the text it is measuring.
  */
 describe('createOverlay style', () => {
-  const CUSTOM = {
+  const CUSTOM: OverlayStyle = {
     selected: { fill: '#112233', fillOpacity: 0.75, stroke: '#445566', strokeOpacity: 0.25, strokeWidth: 3 },
     hover: { fill: '#778899', fillOpacity: 0.1, stroke: '#aabbcc', strokeOpacity: 0.9, strokeWidth: 2 },
+    bareSelected: { stroke: '#123456', strokeOpacity: 0.7, strokeWidth: 5 },
+    bareHover: { stroke: '#654321', strokeOpacity: 0.3, strokeWidth: 6 },
     wrapBox: { stroke: '#ddeeff', strokeOpacity: 0.5, strokeWidth: 10 },
   };
 
@@ -459,7 +492,7 @@ describe('createOverlay style', () => {
     );
 
     overlay.configure({
-      highlight: true,
+      highlight: 'fill',
       picker: false,
       wrapBox: true,
       axes: 'off',
@@ -520,6 +553,111 @@ describe('createOverlay style', () => {
 });
 
 /**
+ * The middle setting of the highlight: the frame without its wash.
+ *
+ * What is checked here is the one thing that is not simply "less of the same" —
+ * that the outline is drawn in `bareStroke` rather than in `stroke`. The
+ * default outlines both frames in white, so an outline-only highlight painted
+ * from `stroke` would draw the selected node and the hovered one identically.
+ */
+describe('createOverlay outline-only highlight', () => {
+  const CUSTOM_BARE: OverlayStyle = {
+    ...OVERLAY_STYLE_DEFAULTS,
+    bareSelected: { stroke: '#00ff00', strokeOpacity: 0.8, strokeWidth: 5 },
+  };
+
+  function overlayFor(mode: HighlightMode, style: OverlayStyle = OVERLAY_STYLE_DEFAULTS) {
+    const registry = createRegistry();
+    const overlay = createOverlay(
+      () => fakeAdapter({ x: 0, y: 0, width: 120, height: 34 }),
+      registry,
+      frame,
+      createLocks(),
+    );
+
+    overlay.configure({
+      highlight: mode,
+      picker: false,
+      wrapBox: false,
+      axes: 'off',
+      pinned: [],
+      transform: false,
+      style,
+      pickDepth: DEFAULT_PICK_DEPTH,
+    });
+    overlay.setSelected(registry.idOf({}));
+
+    const sheet = root().firstElementChild as SVGSVGElement;
+    return {
+      overlay,
+      selected: sheet.children[0] as SVGPolygonElement,
+      hover: sheet.children[1] as SVGPolygonElement,
+    };
+  }
+
+  it('takes the wash off', () => {
+    expect(overlayFor('outline').selected.style.fillOpacity).toBe('0');
+  });
+
+  it('paints each frame from its own bare style, not from the filled one', () => {
+    const { selected, hover } = overlayFor('outline');
+
+    expect(selected.style.stroke).toBe(OVERLAY_STYLE_DEFAULTS.bareSelected.stroke);
+    expect(hover.style.stroke).toBe(OVERLAY_STYLE_DEFAULTS.bareHover.stroke);
+    // Which is the point of there being a second set at all: `stroke` is the
+    // same white on both filled frames, so painting from it would say the same
+    // thing about the selected node and the one under the pointer.
+    expect(selected.style.stroke).not.toBe(hover.style.stroke);
+  });
+
+  /** Its own width and its own strength, not the filled frame's. */
+  it('takes the whole line from the bare style', () => {
+    const { selected } = overlayFor('outline', CUSTOM_BARE);
+
+    expect(selected.style.stroke).toBe('#00ff00');
+    expect(selected.style.strokeOpacity).toBe('0.8');
+    expect(selected.style.strokeWidth).toBe('5');
+  });
+
+  /** And the filled look is painted from its own, which this does not touch. */
+  it('leaves the filled look alone', () => {
+    const { selected } = overlayFor('fill', CUSTOM_BARE);
+
+    expect(selected.style.fill).toBe(OVERLAY_STYLE_DEFAULTS.selected.fill);
+    expect(selected.style.stroke).toBe(OVERLAY_STYLE_DEFAULTS.selected.stroke);
+    expect(selected.style.strokeWidth).toBe(String(OVERLAY_STYLE_DEFAULTS.selected.strokeWidth));
+  });
+
+  /** The frame is still drawn — this is a setting of the highlight, not off. */
+  it('still frames the selected node', () => {
+    expect(overlayFor('outline').selected.getAttribute('points')).not.toBe('');
+  });
+
+  /**
+   * The paint is written only when it changes, and the setting is part of what
+   * can change: a key made of the style alone would leave the wash on until
+   * someone opened the settings and moved something else.
+   */
+  it('repaints when only the setting moves', () => {
+    const { overlay, selected } = overlayFor('fill');
+    expect(selected.style.fillOpacity).toBe(String(OVERLAY_STYLE_DEFAULTS.selected.fillOpacity));
+
+    overlay.configure({
+      highlight: 'outline',
+      picker: false,
+      wrapBox: false,
+      axes: 'off',
+      pinned: [],
+      transform: false,
+      style: OVERLAY_STYLE_DEFAULTS,
+      pickDepth: DEFAULT_PICK_DEPTH,
+    });
+
+    expect(selected.style.fillOpacity).toBe('0');
+  });
+});
+
+/**
  * Gizmos pinned to particular nodes.
  *
  * The sign follows the selection and the pointer, so comparing where two nodes'
@@ -546,7 +684,7 @@ describe('createOverlay pinned axes', () => {
 
     const configure = (config: Partial<OverlayConfig>): void => {
       overlay.configure({
-        highlight: true,
+        highlight: 'fill',
         picker: false,
         wrapBox: false,
         axes: 'arrows',
@@ -643,15 +781,18 @@ describe('createOverlay pinned axes', () => {
     expect(pins()[0]?.style.transform).toBe('scale(0)');
   });
 
-  /** One switch still takes everything the overlay draws off the page. */
-  it('goes away with the highlight', () => {
+  /** A pin answers to `axes`, which is the switch that draws it, and to no
+   *  other. */
+  it('stays when the highlight goes', () => {
     const { registry, configure } = overlayFor();
-    const pinned = [{ id: registry.idOf(placed(0, 0)), label: 'hero' }];
+    const pinned = [{ id: registry.idOf(placed(300, 200)), label: 'hero' }];
 
     configure({ pinned });
-    configure({ pinned, highlight: false, picker: true });
+    const placedAt = pins()[0]?.style.transform;
+    configure({ pinned, highlight: 'off' });
 
-    expect(pins()[0]?.style.transform).toBe('scale(0)');
+    expect(pins()[0]?.style.transform).toBe(placedAt);
+    expect(placedAt).not.toBe('scale(0)');
   });
 
   /** The pool keeps its elements; what it must not keep is a gizmo on screen. */
@@ -686,7 +827,7 @@ describe('the picker', () => {
     const overlay = createOverlay(() => pickingAdapter(() => under), registry, frame, createLocks());
 
     overlay.configure({
-      highlight: false,
+      highlight: 'off',
       picker: true,
       wrapBox: false,
       axes: 'off',

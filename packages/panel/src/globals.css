@@ -116,6 +116,17 @@ h6 {
     --raised: 240 5% 98%;
     --raised-border: 240 6% 72%;
 
+    /* A surface dug **into** `--raised`, for a group of rows that has to read
+       as being inside something — the cards of the settings' Colors tab.
+       Downwards because there is no up: `--raised` is already the lifted
+       surface, and a card drawn above it would be lifting a lid off a lid.
+
+       It stops well short of `--muted`, which is what the cards' own headings
+       are: the heading has to stay a step from the well it caps. And it stops
+       short of `--field` too — here that is the white paper, so a field on
+       this surface is still the lightest thing on it. */
+    --sunken: 240 5% 94%;
+
     /* What a hint is filled with — see `ui/tooltip.tsx`. The raised surface in
        this theme, which already stands off the panel; the dark one lifts it
        further, because a small label there has less of itself to be seen by
@@ -193,6 +204,12 @@ h6 {
 
     --raised: 225 6% 19%;
     --raised-border: 0 0% 38%;
+
+    /* Further down than the light theme's, and by more: a well in the dark is
+       read by how much darker it is, and the same four points of lightness that
+       are plain on white are nearly nothing here. Two points above `--field`,
+       so a field on this surface is still a well dug into it. */
+    --sunken: 225 6% 14%;
 
     --hint: 225 6% 26%;
 

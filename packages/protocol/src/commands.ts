@@ -2,6 +2,7 @@ import type { Json } from './json.js';
 import type {
   AxesMode,
   AxesPin,
+  HighlightMode,
   NodeId,
   OverlayStyle,
   PropertyDescriptor,
@@ -94,22 +95,25 @@ export interface Commands {
    */
   'overlay.config': {
     params: {
-      highlight: boolean;
+      /** How much of the frame is drawn — see `HighlightMode`. */
+      highlight: HighlightMode;
       picker: boolean;
       selected?: NodeId | null;
       hovered?: NodeId | null;
       /**
-       * Whether the selected caption's wrap box is drawn along with the
-       * highlight. Optional and on when unsaid: it is a way of looking at the
-       * highlight rather than a third thing to switch on, and a caller that has
-       * not heard of it should see the frame.
+       * Whether the selected caption's wrap box is drawn. Optional and on when
+       * unsaid: a caller that has not heard of it should see the frame.
+       *
+       * Its own switch, not a setting of the highlight. The two answer
+       * different questions — where the node is, and what the game told its
+       * text to wrap inside — and asking the second is the case where the wash
+       * of the first is in the way.
        */
       wrapBox?: boolean;
       /**
        * How much of the sign on the node's zero is drawn — see `AxesMode`.
-       * Optional and whole when unsaid, for the same reason `wrapBox` is: it is
-       * a way of looking at the highlight rather than a third thing to switch
-       * on.
+       * Optional and whole when unsaid, for the same reason `wrapBox` is, and
+       * independent of the highlight in the same way.
        */
       axes?: AxesMode;
       /**
@@ -117,9 +121,8 @@ export interface Commands {
        * hovered one — see `AxesPin`. Optional and none when unsaid, because a
        * pin is something a caller asks for rather than something it inherits.
        *
-       * They obey `axes` and the highlight like everything else the overlay
-       * draws: the switches say how much of a gizmo is on screen, and a pin
-       * says which nodes have one at all.
+       * They obey `axes`, which is the switch that says how much of a gizmo is
+       * drawn; a pin says which nodes have one at all.
        */
       pinned?: AxesPin[];
       /**

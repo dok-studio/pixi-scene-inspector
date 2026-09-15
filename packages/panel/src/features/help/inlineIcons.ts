@@ -1,6 +1,6 @@
 import type { IconType } from 'react-icons';
 import { FaEye, FaWandMagicSparkles } from 'react-icons/fa6';
-import { LuAxis3D, LuBookmark, LuScaling, LuSigma, LuSquareDashed, LuWrapText } from 'react-icons/lu';
+import { LuAxis3D, LuBookmark, LuScaling, LuSigma, LuSquare, LuWrapText } from 'react-icons/lu';
 
 /**
  * The panel's own glyph for a control named in prose, keyed by the name a
@@ -19,7 +19,7 @@ export const INLINE_ICONS: Record<string, IconType> = {
   bookmark: LuBookmark,
   pin: LuAxis3D,
   picker: FaWandMagicSparkles,
-  highlight: LuSquareDashed,
+  highlight: LuSquare,
   wrapBox: LuWrapText,
   axes: LuAxis3D,
   transform: LuScaling,

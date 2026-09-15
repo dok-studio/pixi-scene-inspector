@@ -126,7 +126,7 @@ export const en: HelpContent = {
             },
             {
               title: 'The overlay is yours to colour',
-              text: 'Fill, outline, opacity and width, set apart for the selected node, the hovered one and the wrap box: a hairline for picking through a crowded scene, a thick frame for a screenshot.',
+              text: 'Three frames — filled, the outline on its own, and the wrap box — each with its own colour, opacity and width, and the first two set apart for the selected node and the hovered one: a hairline for picking through a crowded scene, a thick frame for a screenshot.',
               where: 'Settings → `Colors`',
               goes: 'settings',
             },
@@ -299,7 +299,7 @@ export const en: HelpContent = {
             },
             {
               term: '{{highlight}} Highlight',
-              text: 'Frames the selected node, and whatever the pointer is over. On by default.',
+              text: 'Frames the selected node, and whatever the pointer is over. Click to cycle three states: filled, the outline on its own, then off. The two looks are coloured separately in `Settings`, so the outline on its own can be as loud as it needs to be. Filled by default.',
             },
             {
               term: '{{wrapBox}} Wrap box',
@@ -746,7 +746,7 @@ export const en: HelpContent = {
         { kind: 'h', id: 'colors', text: 'Colors' },
         {
           kind: 'p',
-          text: 'The panel’s own accent — blue, yellow, red or green — and then the overlay itself: fill, outline, alpha and width, separately for the selected node, the hovered one, and the wrap box.',
+          text: 'The panel’s own accent — blue, yellow, red or green — and then the overlay itself, a card per frame: the filled highlight, the same highlight with no fill under it, and the wrap box. Each card holds a colour, an alpha and a width; the first two hold a set for the selected node and a set for the hovered one. Click a card’s heading to fold it away.',
         },
 
         { kind: 'h', id: 'hotkeys', text: 'Hotkeys' },

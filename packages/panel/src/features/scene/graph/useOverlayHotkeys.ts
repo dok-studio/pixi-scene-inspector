@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 
 import { hotkeys, hotkeysEnabled, matchesBinding } from '../../settings/hotkeys.js';
-import { cycleAxes } from './OverlaySwitches.js';
+import { cycleAxes, cycleHighlight } from './OverlaySwitches.js';
 import type { OverlayControls } from './useOverlay.js';
 
 /**
@@ -52,7 +52,7 @@ export function useOverlayHotkeys(overlay: OverlayControls, toggleCounts: () => 
       if (matchesBinding(event, bindings.picker)) {
         current.setPicker(!current.picker);
       } else if (matchesBinding(event, bindings.highlight)) {
-        current.setHighlight(!current.highlight);
+        current.setHighlight(cycleHighlight(current.highlight));
       } else if (matchesBinding(event, bindings.wrapBox)) {
         current.setWrapBox(!current.wrapBox);
       } else if (matchesBinding(event, bindings.axes)) {

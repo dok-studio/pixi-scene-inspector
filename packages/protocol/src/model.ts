@@ -354,8 +354,13 @@ export interface OutlineStyle {
 }
 
 /**
- * The wrap box, which has a stroke and deliberately no fill: it is drawn over
- * the very text it is measuring, and a wash of colour would be in the way.
+ * A frame with a stroke and no fill at all: the wrap box, and the highlight in
+ * its outline-only setting.
+ *
+ * The wrap box has no fill because it is drawn over the very text it is
+ * measuring, and a wash of colour there would be in the way. The outline-only
+ * highlight has none because that is what it is for. Same shape, same reason,
+ * one type.
  */
 export type WrapBoxStyle = Omit<OutlineStyle, 'fill' | 'fillOpacity'>;
 
@@ -370,6 +375,19 @@ export type WrapBoxStyle = Omit<OutlineStyle, 'fill' | 'fillOpacity'>;
 export interface OverlayStyle {
   selected: OutlineStyle;
   hover: OutlineStyle;
+  /**
+   * The same two frames in the highlight's outline-only setting, painted from
+   * their own colours rather than from the two above.
+   *
+   * **A second set rather than the first with the wash switched off**, because
+   * the two looks want different answers. With a wash underneath it, the
+   * outline's job is to edge it: white does that against any game, and a
+   * hairline is enough. On its own it is the only thing on screen saying which
+   * node this is — white says nothing there, because both frames are white, and
+   * a hairline at half strength is hard to find at all.
+   */
+  bareSelected: WrapBoxStyle;
+  bareHover: WrapBoxStyle;
   wrapBox: WrapBoxStyle;
 }
 
@@ -400,6 +418,26 @@ export const OVERLAY_STYLE_DEFAULTS: OverlayStyle = {
     stroke: '#ffffff',
     strokeOpacity: 0.5,
     strokeWidth: 1,
+  },
+  /*
+   * Each frame's own colour, which is the fill it would have had: that is what
+   * tells the selected node from the one under the pointer, and with the wash
+   * gone the line is the only thing left to carry it.
+   *
+   * Drawn harder than the outline over a wash — full strength, two pixels
+   * instead of one. That outline only has to edge a block of colour that is
+   * already visible; this one *is* the highlight, and at a hairline over half
+   * strength it is a frame that has to be looked for.
+   */
+  bareSelected: {
+    stroke: '#bf2256',
+    strokeOpacity: 1,
+    strokeWidth: 2,
+  },
+  bareHover: {
+    stroke: '#1099bc',
+    strokeOpacity: 1,
+    strokeWidth: 2,
   },
   wrapBox: {
     stroke: '#a3ff1a',
@@ -445,6 +483,23 @@ export const MAX_PICK_DEPTH = 1024;
  * so `'origin'` is the middle setting rather than an abbreviation of `'arrows'`.
  */
 export type AxesMode = 'arrows' | 'origin' | 'off';
+
+/**
+ * How much of the highlight the overlay draws.
+ *
+ * Three rather than two, and for the same reason the gizmo has three: the frame
+ * does two things and they are wanted apart. The wash says **which** node
+ * without anyone having to hunt for an edge; the outline says **where it ends**
+ * without covering what is inside it. On a node being looked at rather than
+ * looked for — a caption whose colour is the question, a sprite being compared
+ * with the one under it — the wash is exactly what is in the way.
+ *
+ * `'outline'` is not the wash turned down to nothing. Both frames are outlined
+ * in white by default, so with the fill gone the selected node and the hovered
+ * one would be drawn identically — which is why the outline takes the colour
+ * the wash would have been (see `overlay.ts`).
+ */
+export type HighlightMode = 'fill' | 'outline' | 'off';
 
 /**
  * A node the panel has pinned a gizmo to.

@@ -20,7 +20,7 @@ declare global {
 
 function fakeOverlay(overrides: Partial<OverlayControls> = {}): OverlayControls {
   return {
-    highlight: true,
+    highlight: 'fill',
     picker: false,
     wrapBox: true,
     axes: 'arrows',
@@ -79,17 +79,25 @@ describe('useOverlayHotkeys', () => {
     expect(overlay.setPicker).toHaveBeenCalledWith(true);
   });
 
-  it('toggles highlight, wrap box and transform on their own defaults', async () => {
-    const overlay = fakeOverlay({ highlight: true, wrapBox: true, transform: false });
+  it('toggles wrap box and transform on their own defaults', async () => {
+    const overlay = fakeOverlay({ wrapBox: true, transform: false });
     await mount(overlay);
 
-    press(window, { code: 'KeyH', altKey: true });
     press(window, { code: 'KeyW', altKey: true });
     press(window, { code: 'KeyT', altKey: true });
 
-    expect(overlay.setHighlight).toHaveBeenCalledWith(false);
     expect(overlay.setWrapBox).toHaveBeenCalledWith(false);
     expect(overlay.setTransform).toHaveBeenCalledWith(true);
+  });
+
+  /** The key walks the same three settings as the button, not on and off. */
+  it('cycles the highlight the same way the button does', async () => {
+    const overlay = fakeOverlay({ highlight: 'fill' });
+    await mount(overlay);
+
+    press(window, { code: 'KeyH', altKey: true });
+
+    expect(overlay.setHighlight).toHaveBeenCalledWith('outline');
   });
 
   it('cycles axes the same way the button does', async () => {
@@ -133,7 +141,7 @@ describe('useOverlayHotkeys', () => {
   });
 
   it('answers the next press to whatever the binding was last changed to', async () => {
-    const overlay = fakeOverlay({ highlight: true });
+    const overlay = fakeOverlay({ highlight: 'fill' });
     await mount(overlay);
 
     setHotkey('highlight', { code: 'KeyG', alt: true, ctrl: false, shift: false });
@@ -142,6 +150,6 @@ describe('useOverlayHotkeys', () => {
     expect(overlay.setHighlight).not.toHaveBeenCalled();
 
     press(window, { code: 'KeyG', altKey: true });
-    expect(overlay.setHighlight).toHaveBeenCalledWith(false);
+    expect(overlay.setHighlight).toHaveBeenCalledWith('outline');
   });
 });

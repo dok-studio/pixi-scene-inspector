@@ -89,10 +89,10 @@ async function mount(): Promise<void> {
 }
 
 describe('useOverlay', () => {
-  it('starts with the highlight on and the picker off', async () => {
+  it('starts with the highlight filled and the picker off', async () => {
     await mount();
 
-    expect(controls?.highlight).toBe(true);
+    expect(controls?.highlight).toBe('fill');
     expect(controls?.picker).toBe(false);
   });
 
@@ -148,10 +148,10 @@ describe('useOverlay', () => {
     await mount();
     await act(async () => {
       controls?.setPicker(true);
-      controls?.setHighlight(false);
+      controls?.setHighlight('off');
     });
     expect(controls?.picker).toBe(true);
-    expect(controls?.highlight).toBe(false);
+    expect(controls?.highlight).toBe('off');
 
     // A fresh panel over the same page: nothing of the old one survives.
     await act(async () => {
@@ -160,7 +160,7 @@ describe('useOverlay', () => {
     root = createRoot(container);
     await mount();
 
-    expect(controls?.highlight).toBe(true);
+    expect(controls?.highlight).toBe('fill');
     expect(controls?.picker).toBe(false);
   });
 
@@ -227,7 +227,7 @@ describe('useOverlay', () => {
     await mount();
 
     expect(sent).toMatchObject({
-      highlight: true,
+      highlight: 'fill',
       picker: false,
       wrapBox: true,
       axes: 'arrows',

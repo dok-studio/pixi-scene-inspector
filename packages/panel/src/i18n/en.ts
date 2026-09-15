@@ -140,7 +140,7 @@ export const en = {
   // The overlay's four switches. Every one of them ends in a `[[…]]` clause,
   // whose first word is the verb — one word, in every language.
   'scene.overlay.highlight':
-    'Highlight selected node in the scene, and the currently hovered node. [[Toggle {key}]]',
+    'Frame the selected node in the scene, and the one under the pointer. Click to cycle: filled, outline only, off. [[Cycle {key}]]',
   'scene.overlay.wrapBox': 'Draw the box the selected text wraps inside. [[Toggle {key}]]',
   'scene.overlay.axes':
     'Mark the zero of the selected and hovered nodes. Click to cycle: the arrows, the centre, off. [[Cycle {key}]]',
@@ -293,6 +293,11 @@ export const en = {
   'ui.textList.onePerLine': 'One item per line',
   'ui.split.drag': 'Drag to divide the two panes',
   // ── settings: the overlay's own colours ──────────────────────────────────
+  // The three cards of the Colors tab, named by what the overlay draws
+  // rather than by which node it draws on.
+  'settings.overlay.filled': 'Filled frame',
+  'settings.overlay.bare': 'Frame without fill',
+  // The two runs of rows inside each of the first two.
   'settings.overlay.selected': 'Selected',
   'settings.overlay.hovered': 'Hovered',
   'settings.overlay.wrapBox': 'Wrap box',

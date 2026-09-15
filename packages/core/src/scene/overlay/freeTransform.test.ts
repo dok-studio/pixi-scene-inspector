@@ -113,7 +113,7 @@ function armed(node: Fake, locks: Locks = createLocks(), config: Partial<Overlay
   const overlay = createOverlay(() => fakeAdapter(), registry, frame, locks);
 
   overlay.configure({
-    highlight: false,
+    highlight: 'off',
     picker: false,
     wrapBox: false,
     axes: 'off',
@@ -185,7 +185,7 @@ describe('the free transform frame', () => {
 
   it('is not drawn at all until the mode is armed', () => {
     const { element } = armed(fakeNode(BOUNDS, { x: 100, y: 100 }), createLocks(), {
-      highlight: true,
+      highlight: 'fill',
       transform: false,
     });
 

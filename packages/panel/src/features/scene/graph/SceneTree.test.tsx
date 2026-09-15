@@ -40,7 +40,7 @@ const client = { call: () => Promise.resolve(undefined), send } as unknown as Cl
 const setHovered = vi.fn();
 
 const overlay: OverlayControls = {
-  highlight: false,
+  highlight: 'off',
   picker: true,
   wrapBox: true,
   axes: 'arrows',

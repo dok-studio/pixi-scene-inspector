@@ -33,8 +33,17 @@ function merge(saved: OverlayStyle): OverlayStyle {
   return {
     selected: { ...OVERLAY_STYLE_DEFAULTS.selected, ...saved.selected },
     hover: { ...OVERLAY_STYLE_DEFAULTS.hover, ...saved.hover },
+    bareSelected: { ...OVERLAY_STYLE_DEFAULTS.bareSelected, ...saved.bareSelected },
+    bareHover: { ...OVERLAY_STYLE_DEFAULTS.bareHover, ...saved.bareHover },
     wrapBox: { ...OVERLAY_STYLE_DEFAULTS.wrapBox, ...saved.wrapBox },
   };
+}
+
+/** The five frames the settings paint, which are the keys of `OverlayStyle`. */
+const GROUPS = ['selected', 'hover', 'bareSelected', 'bareHover', 'wrapBox'] as const;
+
+function isGroup(name: string): name is keyof OverlayStyle {
+  return (GROUPS as readonly string[]).includes(name);
 }
 
 export interface OverlayStyleControls {
@@ -51,8 +60,8 @@ export interface OverlayStyleControls {
 /** The two steps of a settings key, where both name something that exists. */
 function split(path: string): { group: keyof OverlayStyle; field: string } | null {
   const [group, field] = path.split('.');
-  if (field === undefined) return null;
-  if (group !== 'selected' && group !== 'hover' && group !== 'wrapBox') return null;
+  if (field === undefined || group === undefined) return null;
+  if (!isGroup(group)) return null;
   if (!(field in OVERLAY_STYLE_DEFAULTS[group])) return null;
 
   return { group, field };
