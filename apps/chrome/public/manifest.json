@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Scene Inspector for PixiJS",
   "short_name": "Scene Inspector",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Inspect and edit the scene graph and textures of PixiJS applications — v6, v7 and v8.",
   "minimum_chrome_version": "111",
   "icons": {

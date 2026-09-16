@@ -32,6 +32,7 @@ npm run lint      # eslint
 npm run typecheck # tsc
 npm run playground   # local playground on http://localhost:5173/
 npm run build:chrome # extension build into apps/chrome/dist
+npm run package:chrome # the same build, zipped into release/ for the Web Store
 ```
 
 The playground is a small Snake game on PixiJS v8 with the panel mounted beside
@@ -75,3 +76,7 @@ committed file has fallen behind the lock file.
 
 All three ship inside the built extension, since that, and not this
 repository, is the copy people install.
+
+The extension collects nothing and sends nothing — [`PRIVACY.md`](PRIVACY.md)
+says what it stores and where. The material for the Chrome Web Store listing,
+including the text of the listing itself, is under [`store/`](store).

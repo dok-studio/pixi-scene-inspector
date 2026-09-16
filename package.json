@@ -1,6 +1,6 @@
 {
   "name": "pixi-scene-inspector",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "private": true,
   "type": "module",
   "description": "Scene Inspector for PixiJS — DevTools extension for inspecting the scene graph and textures of PixiJS applications.",
@@ -17,6 +17,7 @@
     "typecheck": "tsc -b && tsc -p apps/playground --noEmit && tsc -p apps/chrome --noEmit",
     "playground": "npm run dev --workspace @scene-inspector/app-playground",
     "build:chrome": "npm run build --workspace @scene-inspector/app-chrome",
+    "package:chrome": "npm run build:chrome && node scripts/package.mjs",
     "licenses": "node scripts/licenses.mjs",
     "licenses:check": "node scripts/licenses.mjs --check",
     "test": "vitest run",
