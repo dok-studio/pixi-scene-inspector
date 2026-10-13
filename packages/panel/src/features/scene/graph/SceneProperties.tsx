@@ -73,6 +73,33 @@ const TAB_LABEL_KEYS: Record<string, MessageKey> = {
  */
 const COPYABLE_SECTION = 'general';
 
+/**
+ * The one exception to the rule above: the rows of Info that name the node.
+ * These copy the bare string rather than `key: value,` — a name is not pasted
+ * back into an object, it is searched for, or handed to a lookup by label.
+ * `name` is here with the other two because it is the same row under PixiJS's
+ * older owner (see the Info section in core's schema).
+ */
+const NAMING_SECTION = 'info';
+const NAMING_KEYS: ReadonlySet<string> = new Set(['label', 'id', 'name']);
+
+/** What a double click on a row's name puts on the clipboard, if anything. */
+function copyOf(sectionId: string, descriptor: PropertyDescriptor, value: Json | undefined) {
+  if (sectionId === COPYABLE_SECTION) {
+    // The trailing comma is the row's, not the printer's: a field copied on its
+    // own is going into an object beside other fields, and the one it is pasted
+    // after is almost never the last.
+    const printed = fieldSnippet(descriptor, value);
+    return printed === null ? undefined : `${printed},`;
+  }
+
+  if (sectionId === NAMING_SECTION && NAMING_KEYS.has(descriptor.key)) {
+    return typeof value === 'string' ? value : undefined;
+  }
+
+  return undefined;
+}
+
 /** Faster than the tree: this is what a hand on a slider is watching. */
 const VALUES_INTERVAL_MS = 250;
 
@@ -167,29 +194,24 @@ function groupFields(fields: readonly PropertyDescriptor[]): Group[] {
 function Row({
   descriptor,
   value,
-  copyable,
+  copy,
   onChange,
   isLast,
 }: {
   descriptor: PropertyDescriptor;
   value: Json | undefined;
-  /** Whether a double click on this row's name copies the field as source. */
-  copyable: boolean;
+  /** What a double click on this row's name copies; absent leaves it inert. */
+  copy: string | undefined;
   onChange: (key: string, value: Json) => void;
   isLast: boolean;
 }) {
   const Component = propertyMap[descriptor.editor] ?? FallbackProperty;
 
-  // The trailing comma is the row's, not the printer's: a field copied on its
-  // own is going into an object beside other fields, and the one it is pasted
-  // after is almost never the last.
-  const printed = copyable ? fieldSnippet(descriptor, value) : null;
-
   return (
     <PropertyEntry
       title={descriptor.label === '' ? formatCamelCase(descriptor.key) : descriptor.label}
       input={<Component {...propertyData(descriptor, value, onChange)} />}
-      copy={printed === null ? undefined : `${printed},`}
+      copy={copy}
       isLast={isLast}
     />
   );
@@ -334,7 +356,7 @@ function Section({
             key={rowKey(descriptor.key)}
             descriptor={descriptor}
             value={values?.[descriptor.key]}
-            copyable={section.id === COPYABLE_SECTION}
+            copy={copyOf(section.id, descriptor, values?.[descriptor.key])}
             onChange={onChange}
             isLast={index === group.fields.length - 1 && (group.name !== undefined || isLastGroup)}
           />

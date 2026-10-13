@@ -424,7 +424,7 @@ export const en: HelpContent = {
           rows: [
             {
               term: 'One field',
-              text: 'Double-click a property’s **label**. It flashes and `key: value,` is on the clipboard.',
+              text: 'Double-click a property’s **label**. It flashes and `key: value,` is on the clipboard — or, on `Label`, `Id` and `Name`, just the name itself.',
               key: 'Double-click',
             },
             {

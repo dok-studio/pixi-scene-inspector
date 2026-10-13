@@ -9,7 +9,7 @@ import type {
 import { act } from 'react';
 import type { Root } from 'react-dom/client';
 import { createRoot } from 'react-dom/client';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { Client } from '../../../transport/client.js';
 import { SceneProperties } from './SceneProperties.js';
@@ -536,6 +536,43 @@ describe('SceneProperties', () => {
     const names = [...container.querySelectorAll<HTMLElement>('.cursor-copy')];
 
     expect(names.map((element) => element.textContent)).toEqual(['X', 'Y']);
+  });
+
+  /**
+   * The exception: Info's rows that name the node. They copy the bare name —
+   * it is searched for, not pasted back into an object.
+   */
+  it('copies the bare label from Info, and nothing else there', async () => {
+    const writeText = vi.fn(() => Promise.resolve());
+    Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true });
+
+    const { client, settle } = slowClient([
+      {
+        id: 'info',
+        title: 'Info',
+        layout: 'generic',
+        fields: [
+          { key: 'type', label: 'Type', editor: 'text', readOnly: true },
+          { key: 'label', label: 'Label', editor: 'text', readOnly: true },
+        ],
+      },
+    ]);
+    VALUES[1] = { ...VALUES[1], type: 'Sprite', label: 'hero' };
+
+    try {
+      await show(node(1, 'Sprite'), client);
+      await settle();
+
+      const names = [...container.querySelectorAll<HTMLElement>('.cursor-copy')];
+      expect(names.map((element) => element.textContent)).toEqual(['Label']);
+
+      act(() => {
+        names[0]?.dispatchEvent(new MouseEvent('dblclick', { bubbles: true }));
+      });
+      expect(writeText).toHaveBeenCalledWith('hero');
+    } finally {
+      VALUES[1] = { x: 10, y: 20, label: null, cursor: 'pointer' };
+    }
   });
 
   it('brings back a known type without an empty frame in between', async () => {
