@@ -29,16 +29,16 @@ Inspect and edit the scene graph and textures of PixiJS applications — v6, v7 
 **Detailed description** (16 000)
 
 ```
-Scene Inspector adds a PixiJS tab to Chrome DevTools. Open it on a page that runs a PixiJS application and you get the scene as the renderer sees it — the tree, the textures behind it, and what a frame costs.
+Scene Inspector adds a tab to Chrome DevTools for inspecting and debugging PixiJS (Pixi) applications. Open it on a page that runs a PixiJS application and you get the scene as the renderer sees it — the tree, the textures behind it, and what a frame costs.
 
-Works with PixiJS v6, v7 and v8.
+Works with PixiJS v6, v7, and v8.
 
 SCENE
-• The scene graph as a tree, with the same names and the same nesting the application gave it.
-• Click a node to edit it: position, scale, rotation, alpha, tint, blend mode, visibility, and the rest of what its type carries. Changes land in the running application immediately.
+• The scene graph as a tree, with the same names and hierarchy defined by the application.
+• Click a node to edit it: position, scale, rotation, alpha, tint, blend mode, visibility, and other properties supported by its type. Changes land in the running application immediately.
 • Pick a node by clicking the canvas, and see the full stack of what is under the cursor rather than only the topmost hit.
-• A highlight drawn over the canvas follows the selection, with a free transform for dragging, scaling and rotating a node in place.
-• Dedicated sections for Text and for Spine — styles, tracks, skins, animations, and a scrub that works while the application is paused.
+• A highlight drawn over the canvas follows the selection, with transform controls for dragging, scaling, and rotating a node in place.
+• Dedicated sections for Text and Spine — styles, tracks, skins, animations, and a scrub that works while the application is paused.
 • Bookmark a node to find it again after a reload.
 
 ASSETS
@@ -47,8 +47,8 @@ ASSETS
 • For any texture, which nodes in the scene are drawing it.
 
 STATS
-• Frame time, render time and the worst frame in the window, live.
-• Draw calls, texture counts, GPU memory and node counts.
+• Frame time, render time, and the worst frame in the window, live.
+• Draw calls, texture counts, GPU memory, and node counts.
 • An optional recording behind the charts, for looking at a spike after it has passed.
 
 THE PANEL
@@ -58,13 +58,6 @@ THE PANEL
 
 PRIVACY
 The extension collects nothing, sends nothing, and has no servers. It declares no Chrome permissions. Everything it reads stays in your browser, and the settings it remembers stay on your machine. The full policy is in the repository.
-
-OPEN SOURCE
-MIT licensed. The source, the issue tracker and the licence notices are at github.com/dok-studio/pixi-scene-inspector
-
-Derived in part from PixiJS DevTools (github.com/pixijs/devtools), MIT licensed, © 2024 PixiJS. What came from where is listed in the NOTICE file that ships inside the extension.
-
-This project is not affiliated with, endorsed by, or sponsored by the PixiJS project. PixiJS is a trademark of its respective owners.
 ```
 
 ---
@@ -80,11 +73,11 @@ Inspect and edit the scene graph and GPU textures of PixiJS applications from a 
 **Justification — host access (`content_scripts` matching `<all_urls>`)**
 
 ```
-The extension has to know whether a page runs PixiJS, and it cannot know that in advance: any page might, and the panel's answer to "is there anything to inspect" must not depend on the page's load order. So a single content script runs at document_start and places the inspector's host object on the page's window, before the page creates its application. A host that arrives later is too late to see the application being built.
+The extension needs to detect whether the current page runs PixiJS and make its DevTools panel available regardless of when the PixiJS application is created. Because the application may be created at any time during page loading, a single content script runs at document_start and exposes the inspector's host object on the page's window before the page creates its application.
 
-The script does nothing else. It reads nothing on its own, stores nothing, and makes no network requests. Everything after that point happens only while the PixiJS DevTools panel is open, and only in response to the panel asking.
+The content script does nothing else. It does not read page data, collect or store user data, or make network requests. After the host object is installed, the extension performs inspection only when the PixiJS DevTools panel is open and only in response to requests from the panel.
 
-The extension declares no Chrome permissions of any kind — no storage, no tabs, no scripting, no host permissions.
+The extension declares no Chrome permissions and requests no host permissions, including no storage, tabs, scripting, or other optional permissions.
 ```
 
 **Remote code:** No, I am not using remote code.
@@ -146,10 +139,9 @@ file rather than the look of it. `scripts/listing.test.mjs` checks them too.
 ```
 No account or credentials are needed.
 
-1. Open any page that runs a PixiJS application (v6, v7 or v8). For example: https://pixijs.com/8.x/examples
-2. Open Chrome DevTools and choose the "PixiJS" tab.
-3. The scene tree appears on the left; click a node to edit its properties on the right, or use the picker button to select a node by clicking the canvas.
-4. The Assets tab lists the renderer's textures; the Stats tab shows frame and render time while the application runs.
-
-A tab that was already open when the extension was installed has no inspector in it — the panel says so and asks for a reload. Reload the page and the panel connects.
+1. Open https://pixijs.io/open-games/puzzling-potions/
+2. Open Chrome DevTools and select the "PixiJS" tab.
+3. The scene tree appears on the left. Select a node to inspect/edit its properties, or use the picker to select a node on the canvas.
+4. The Assets tab lists textures; Stats shows frame/render timing.
+5. If the page was open before installation, reload it when prompted to connect the inspector.
 ```
