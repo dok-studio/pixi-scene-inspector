@@ -28,12 +28,17 @@ export function followStorage(key: string, reread: () => void): void {
  * State that outlives the panel being closed — the active tab, the theme, which
  * sections are folded. DevTools panels are torn down and rebuilt constantly, so
  * without this the interface resets every time the drawer is reopened.
+ *
+ * `revive` adjusts what was stored on the way back in, once, when the panel
+ * opens — for a setting whose last value is not always the one to return to.
  */
-export function useLocalStorage<T>(key: string, defaultValue: T) {
+export function useLocalStorage<T>(key: string, defaultValue: T, revive?: (saved: T) => T) {
   const [value, setValue] = useState<T>(() => {
     try {
       const saved = localStorage.getItem(key);
-      return saved === null ? defaultValue : (JSON.parse(saved) as T);
+      if (saved === null) return defaultValue;
+      const parsed = JSON.parse(saved) as T;
+      return revive ? revive(parsed) : parsed;
     } catch {
       // Unreadable or not JSON — treat it as absent rather than failing to render.
       return defaultValue;

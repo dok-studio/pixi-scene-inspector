@@ -15,9 +15,9 @@ import { useOverlay } from './useOverlay.js';
  * Which switches the overlay comes up with, and that it comes up with the same
  * ones every time.
  *
- * Both change what the inspected page draws, so neither is remembered: a panel
- * that reopened with the picker still armed would swallow the next click on the
- * application, with nothing on screen to explain why.
+ * The picker is never remembered: a panel that reopened with it still armed
+ * would swallow the next click on the application, with nothing on screen to
+ * explain why. The highlight's style is, except for off.
  */
 
 declare global {
@@ -144,24 +144,57 @@ describe('useOverlay', () => {
     expect(controls?.transform).toBe(false);
   });
 
-  it('does not carry either switch over to the next run', async () => {
+  it('does not carry the picker over to the next run', async () => {
     await mount();
     await act(async () => {
       controls?.setPicker(true);
-      controls?.setHighlight('off');
     });
     expect(controls?.picker).toBe(true);
-    expect(controls?.highlight).toBe('off');
 
-    // A fresh panel over the same page: nothing of the old one survives.
+    // A fresh panel over the same page: the picker is not armed again.
     await act(async () => {
       root.unmount();
     });
     root = createRoot(container);
     await mount();
 
-    expect(controls?.highlight).toBe('fill');
     expect(controls?.picker).toBe(false);
+  });
+
+  it('carries the highlight style over to the next run', async () => {
+    await mount();
+    await act(async () => {
+      controls?.setHighlight('outline');
+    });
+
+    await act(async () => {
+      root.unmount();
+    });
+    root = createRoot(container);
+    await mount();
+
+    expect(controls?.highlight).toBe('outline');
+  });
+
+  /**
+   * Off is the one setting that does not survive: a panel reopening with
+   * nothing under the pointer looks broken, so it comes back as the outline.
+   */
+  it('brings a highlight left off back as the outline', async () => {
+    await mount();
+    await act(async () => {
+      controls?.setHighlight('off');
+    });
+    expect(controls?.highlight).toBe('off');
+
+    await act(async () => {
+      root.unmount();
+    });
+    root = createRoot(container);
+    await mount();
+
+    expect(controls?.highlight).toBe('outline');
+    expect(sent?.['highlight']).toBe('outline');
   });
 
   /**
@@ -177,7 +210,7 @@ describe('useOverlay', () => {
   });
 
   /**
-   * These two *are* carried over, unlike the highlight and the picker above.
+   * These two *are* carried over, unlike the picker above.
    * How much of the overlay to draw is a preference someone arrives at once,
    * and a DevTools panel is torn down and rebuilt constantly — re-entering it
    * on every reopen is the failure this asserts against.

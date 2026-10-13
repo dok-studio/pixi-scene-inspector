@@ -299,7 +299,7 @@ export const en: HelpContent = {
             },
             {
               term: '{{highlight}} Highlight',
-              text: 'Frames the selected node, and whatever the pointer is over. Click to cycle three states: filled, the outline on its own, then off. The two looks are coloured separately in `Settings`, so the outline on its own can be as loud as it needs to be. Filled by default.',
+              text: 'Frames the selected node, and whatever the pointer is over. Click to cycle three states: filled, the outline on its own, then off. The two looks are coloured separately in `Settings`, so the outline on its own can be as loud as it needs to be. Filled by default; the last look you chose is remembered, and a highlight left off comes back as the outline.',
             },
             {
               term: '{{wrapBox}} Wrap box',

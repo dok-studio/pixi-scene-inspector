@@ -80,17 +80,27 @@ export function useOverlay(
    */
   pinned: AxesPin[],
 ): OverlayControls {
-  // Neither switch is remembered. Both change what the inspected page draws,
-  // and a panel that reopens with the picker armed steals the next click on the
-  // application; the highlight is the state to come back to instead.
-  const [highlight, setHighlight] = useState<HighlightMode>('fill');
+  /*
+   * The highlight's style is remembered, but not its absence: a highlight left
+   * off comes back as the outline. A panel that reopens showing nothing under
+   * the pointer looks broken rather than configured, and the outline is the
+   * quieter of the two ways back — it was most likely switched off for being in
+   * the way.
+   */
+  const [highlight, setHighlight] = useLocalStorage<HighlightMode>(
+    'scene.overlay.highlight',
+    'fill',
+    (saved) => (saved === 'off' ? 'outline' : saved),
+  );
+  // Never remembered: a panel that reopens with the picker armed steals the
+  // next click on the application.
   const [picker, setPicker] = useState(false);
   const [transform, setTransform] = useState(false);
   /*
-   * These two are stored, unlike the two above, and the difference is what each
-   * one costs to come back to. A remembered picker steals the next click on the
-   * application, and a remembered highlight is a keystroke either way. But how
-   * much of the overlay someone wants drawn over their scene is a preference
+   * These two are stored, unlike the picker and the frame, and the difference is
+   * what each one costs to come back to. A remembered picker steals the next
+   * click on the application. But how much of the overlay someone wants drawn
+   * over their scene is a preference
    * arrived at once — and a DevTools panel is torn down and rebuilt constantly,
    * so without this it would be re-entered on every reopen.
    */
