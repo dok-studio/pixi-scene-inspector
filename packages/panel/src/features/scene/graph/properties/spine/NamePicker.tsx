@@ -8,6 +8,8 @@ import { Hint } from '../../../../../components/ui/tooltip.js';
 import { useT } from '../../../../../i18n/index.js';
 import { formatNumber } from '../../../../../lib/formatNumber.js';
 import { cn } from '../../../../../lib/utils.js';
+import { breakableName, MiddleTruncated } from './breakableName.js';
+import { NameTree } from './NameTree.js';
 
 /**
  * Choosing one name out of a list, with a search.
@@ -102,6 +104,13 @@ export function NamePicker({
     setQuery('');
   };
 
+  const tip =
+    value === null
+      ? (title ?? '')
+      : pending === true
+        ? `${value} — ${t('spine.chosen')}`
+        : value;
+
   return (
     <Popover
       open={open}
@@ -110,10 +119,17 @@ export function NamePicker({
         if (!next) setQuery('');
       }}
     >
-      <Hint text={pending === true ? t('spine.chosen') : (title ?? '')}>
+      {/*
+       * The tip names what is chosen, in full: the button has room for a few
+       * characters of a name that is often a path several segments long.
+       */}
+      <Hint text={tip}>
         <PopoverTrigger asChild>
           <button
             type="button"
+            // What the button does, not what it holds: the tip carries the name,
+            // and without this the name would also become the button's label.
+            aria-label={title}
             disabled={disabled}
             className={cn(
               'border-border hover:border-secondary flex h-6 min-w-0 flex-1 items-center justify-between gap-1 rounded border px-2 text-xs outline-none',
@@ -121,15 +137,26 @@ export function NamePicker({
               disabled && 'opacity-50',
             )}
           >
-            <span className={cn('truncate', value === null && 'text-muted-foreground')}>
-              {value ?? placeholder ?? NONE}
-            </span>
+            {value === null ? (
+              <span className="text-muted-foreground truncate">{placeholder ?? NONE}</span>
+            ) : (
+              <MiddleTruncated name={value} />
+            )}
             <FaAngleDown className="shrink-0 opacity-60" />
           </button>
         </PopoverTrigger>
       </Hint>
 
-      <PopoverContent align="start" side="bottom" className="w-56 p-1">
+      {/*
+       * As wide as the panel allows rather than a fixed 14rem: the names are
+       * what is being chosen between, and a list of ten identical prefixes cut
+       * off at the same place is no choice at all.
+       */}
+      <PopoverContent
+        align="start"
+        side="bottom"
+        className="w-[max(14rem,var(--radix-popover-trigger-width))] max-w-[calc(100vw-1rem)] p-1"
+      >
         <div className="border-border mb-1 flex items-center gap-1 border-b px-1 pb-1">
           <FaMagnifyingGlass className="text-muted-foreground shrink-0 text-[10px]" />
           <Input
@@ -155,17 +182,29 @@ export function NamePicker({
             </button>
           )}
 
-          {shown.map((option) => (
+          {/*
+           * Unsearched, the names are drawn as the tree their folders make —
+           * the same one the Info list draws. A search flattens it again: what
+           * matched may sit in any folder, and the hits are read best-first.
+           */}
+          {query.trim() === '' && (
+            <div className="text-xs">
+              <NameTree entries={options} selected={value} onPick={choose} />
+            </div>
+          )}
+
+          {query.trim() !== '' && shown.map((option) => (
             <button
               key={option.name}
               type="button"
               className={cn(
-                'hover:bg-muted flex w-full items-center justify-between gap-2 rounded px-2 py-1 text-left text-xs',
+                'hover:bg-muted flex w-full items-baseline justify-between gap-2 rounded px-2 py-1 text-left text-xs',
                 option.name === value && 'text-primary',
               )}
               onClick={() => choose(option.name)}
             >
-              <span className="truncate">{option.name}</span>
+              {/* Wrapped rather than cut: in the list every name is shown whole. */}
+              <span className="min-w-0 [overflow-wrap:anywhere]">{breakableName(option.name)}</span>
               {option.detail !== undefined && (
                 <span className="text-muted-foreground shrink-0 tabular-nums">
                   {formatNumber(option.detail, 2)}

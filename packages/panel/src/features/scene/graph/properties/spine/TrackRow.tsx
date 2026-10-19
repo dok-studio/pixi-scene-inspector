@@ -26,7 +26,7 @@ import { TrackNumber } from './TrackNumber.js';
  * one press turns it into a call.
  *
  * Everything else is written straight onto the live entry, because it can be:
- * `loop`, `alpha`, the mix and the playhead all take effect without building a
+ * `loop`, the speed, the mix and the playhead all take effect without building a
  * new entry. Going through `setAnimation` to change `loop` — which is what this
  * row used to do — restarted the animation from zero.
  *
@@ -105,7 +105,6 @@ export function TrackRow({
    * back to — so the speed shown while it is stopped is the one held for it.
    */
   const speed = live === undefined || live.timeScale === 0 ? draft.timeScale : live.timeScale;
-  const alpha = live?.alpha ?? draft.alpha;
   const mix = live?.mixDuration ?? draft.mixDuration;
 
   const edit = (patch: Partial<TrackDraft>): void => {
@@ -182,6 +181,26 @@ export function TrackRow({
          * screen to select with a mouse.
          */}
         <CopyButton value={draft.animation ?? ''} title={t('spine.copyAnimation')} />
+      </div>
+
+      {/*
+       * The track's numbers and its controls share a line, so the name above has
+       * the whole width to itself. `alpha` is left out of the row on purpose: the
+       * draft still carries it, so Play keeps whatever the track already had.
+       */}
+      <div className="mt-1 flex items-center gap-2">
+        <TrackNumber
+          label="speed"
+          value={speed}
+          title="TrackEntry.timeScale"
+          onCommit={(next) => number('timeScale', next)}
+        />
+        <TrackNumber
+          label="mix"
+          value={mix}
+          title="TrackEntry.mixDuration"
+          onCommit={(next) => number('mixDuration', next)}
+        />
 
         <Hint text={t('spine.repeat')}>
           <Toggle
@@ -266,27 +285,6 @@ export function TrackRow({
         <span className="text-muted-foreground w-24 text-right tabular-nums">
           {formatNumber(live?.time ?? 0, 2)} / {formatNumber(live?.duration ?? 0, 2)}
         </span>
-      </div>
-
-      <div className="mt-1 flex items-center gap-2">
-        <TrackNumber
-          label="speed"
-          value={speed}
-          title="TrackEntry.timeScale"
-          onCommit={(next) => number('timeScale', next)}
-        />
-        <TrackNumber
-          label="alpha"
-          value={alpha}
-          title="TrackEntry.alpha"
-          onCommit={(next) => number('alpha', next)}
-        />
-        <TrackNumber
-          label="mix"
-          value={mix}
-          title="TrackEntry.mixDuration"
-          onCommit={(next) => number('mixDuration', next)}
-        />
       </div>
 
       {/* What is crossfading right now, while it is. Nothing to say otherwise. */}

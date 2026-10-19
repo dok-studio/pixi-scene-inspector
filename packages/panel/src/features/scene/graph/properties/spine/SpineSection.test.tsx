@@ -208,7 +208,7 @@ describe('SpineSection', () => {
     // By title, because the skin chooser is a popover trigger too and comes
     // first in the document.
     const picker = container.querySelector<HTMLButtonElement>(
-      'button[aria-label="Choose an animation"], button[aria-label="Chosen — press Play to start it"]',
+      'button[aria-label="Choose an animation"]',
     );
     if (picker === null) throw new Error('No animation picker');
 
@@ -246,6 +246,26 @@ describe('SpineSection', () => {
     expect(container.textContent).toContain('circle');
     expect(container.textContent).toContain('walk');
     expect(rows()).toBe(1);
+  });
+
+  /**
+   * The button has room for a few characters of a name that is often a path,
+   * so the whole of it is in the tip.
+   */
+  it('names the running animation in full on the picker', async () => {
+    await show(liveWith([track()]));
+
+    const picker = container.querySelector<HTMLButtonElement>(
+      'button[aria-label="Choose an animation"]',
+    );
+    if (picker === null) throw new Error('No animation picker');
+
+    // Focus opens a tooltip at once, where the pointer would wait for a delay.
+    await act(async () => {
+      picker.focus();
+    });
+
+    expect(document.body.querySelector('[role="tooltip"]')?.textContent).toBe('walk');
   });
 
   /**

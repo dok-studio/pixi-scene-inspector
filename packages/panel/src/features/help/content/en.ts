@@ -508,7 +508,10 @@ export const en: HelpContent = {
               term: 'Index',
               text: 'Editable. Moving a running track clears the old index and restarts on the new one; an index already taken is refused.',
             },
-            { term: 'Animation', text: 'A searchable list, each name with its duration.' },
+            {
+              term: 'Animation',
+              text: 'A searchable list, each name with its duration. Names written as paths (`hero/win/loop`) are folded into folders by their `/`; a search lists the matches flat.',
+            },
             {
               term: 'loop',
               text: 'Written straight onto the running entry — it does not restart the animation.',
@@ -518,8 +521,8 @@ export const en: HelpContent = {
               text: 'Drag the bar to move through the animation. It pauses the track for the length of the drag and resumes at the speed it had — **and it works on a paused scene**, because the page applies the pose and asks for one frame.',
             },
             {
-              term: 'speed · alpha · mix',
-              text: '`TrackEntry.timeScale`, `.alpha` and `.mixDuration` on that track alone.',
+              term: 'speed · mix',
+              text: '`TrackEntry.timeScale` and `.mixDuration` on that track alone.',
             },
             {
               term: 'Queue',

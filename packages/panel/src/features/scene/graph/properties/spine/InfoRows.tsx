@@ -1,6 +1,7 @@
 import type { SpineInfo } from '@scene-inspector/protocol';
 
-import { formatNumber } from '../../../../../lib/formatNumber.js';
+import { breakableName } from './breakableName.js';
+import { NameTree } from './NameTree.js';
 
 /**
  * What the skeleton *has*, as opposed to what it is doing.
@@ -52,29 +53,20 @@ export function InfoRows({ info }: { info: SpineInfo }) {
         {info.animations.length === 0 ? (
           <span className="text-muted-foreground">{info.pending ? 'Reading…' : 'None.'}</span>
         ) : (
-          info.animations.map((animation) => (
-            <div key={animation.name} className="flex items-baseline justify-between gap-2 py-0.5">
-              <span className="min-w-0 break-words">{animation.name}</span>
-              {/*
-               * Only where it is known. Two of the three ways a skeleton the
-               * node is not carrying gets read do not parse its timelines, so
-               * a zero there means "not read" rather than "instant".
-               */}
-              {animation.duration > 0 && (
-                <span className="text-muted-foreground shrink-0 tabular-nums">
-                  {formatNumber(animation.duration, 2)}
-                </span>
-              )}
-            </div>
-          ))
+          <NameTree
+            entries={info.animations.map((animation) => ({
+              name: animation.name,
+              detail: animation.duration,
+            }))}
+          />
         )}
       </Listing>
 
       {info.events.length > 0 && (
         <Listing label="events">
           {info.events.map((event) => (
-            <div key={event} className="break-words py-0.5">
-              {event}
+            <div key={event} className="py-0.5 [overflow-wrap:anywhere]">
+              {breakableName(event)}
             </div>
           ))}
         </Listing>
