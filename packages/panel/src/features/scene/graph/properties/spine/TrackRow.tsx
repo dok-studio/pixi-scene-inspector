@@ -150,11 +150,22 @@ export function TrackRow({
     actions.setParam(index, key, value);
   };
 
+  /**
+   * Added here and never started: a row still waiting to be set up.
+   *
+   * Marked in the accent along its edge, because among a column of running
+   * tracks it is the one that wants something done to it — and a grey tint
+   * alone reads as "inactive", which is what an offline row is, not this.
+   */
+  const waiting = !offline && live === undefined;
+
   return (
     <div
+      data-waiting={waiting || undefined}
       className={cn(
         'border-border border-b px-2 py-1.5 text-xs',
-        (offline || live === undefined) && 'bg-muted/30',
+        offline && 'bg-muted/30',
+        waiting && 'border-l-primary bg-primary/10 border-l-2 pl-1.5',
       )}
     >
       <div className="flex items-center gap-2">

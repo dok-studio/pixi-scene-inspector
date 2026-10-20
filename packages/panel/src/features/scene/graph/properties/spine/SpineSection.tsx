@@ -18,7 +18,7 @@ import {
   draftFor,
   forgetOriginalVisible,
   dropDraft,
-  nextFreeTrack,
+  nextTrack,
   moveDraft,
   nodesOf,
   originalWasVisible,
@@ -583,7 +583,7 @@ export function SpineSection({
                   size="xs"
                   className="gap-1 px-2"
                   onClick={() => {
-                    addPendingTrack(id, nextFreeTrack(id, live?.tracks ?? []));
+                    addPendingTrack(id, nextTrack(id, live?.tracks ?? []));
                     touched();
                   }}
                 >

@@ -283,6 +283,20 @@ describe('SpineSection', () => {
     expect(rows()).toBe(2);
   });
 
+  /**
+   * Past the last track, not into a gap between two: the rows are drawn in
+   * index order, and one slotted into the middle had to be searched for.
+   */
+  it('adds the track after the last one and marks it as waiting', async () => {
+    await show(liveWith([track({ index: 0 }), track({ index: 2, animation: 'jump' })]));
+
+    click(button(ADD));
+
+    const waiting = [...container.querySelectorAll('[data-waiting]')];
+    expect(waiting).toHaveLength(1);
+    expect(waiting[0]?.querySelector('input')?.value).toBe('3');
+  });
+
   it('leaves Play with nothing to do until an animation is chosen', async () => {
     await show(liveWith([]));
 

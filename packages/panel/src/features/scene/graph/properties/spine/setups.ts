@@ -410,16 +410,27 @@ export function addPendingTrack(id: NodeId, index: number): void {
 }
 
 /**
- * The lowest index nothing is using — neither a live track nor a row already
- * added. Spine addresses tracks by index, so the panel has to pick one.
+ * The index "Add track" puts a new row on: one past the highest in use, counting
+ * both live tracks and rows already added. Spine addresses tracks by index, so
+ * the panel has to pick one.
+ *
+ * Past the end rather than into the first gap, because the rows are drawn in
+ * index order: with several tracks running and a hole among them, a row put in
+ * the hole turns up somewhere in the middle and has to be hunted for. At the end
+ * it is the last row, right above the button that made it.
+ *
+ * Only once the end has run into `MAX_TRACK_INDEX` does a gap get used.
  */
-export function nextFreeTrack(id: NodeId, live: readonly SpineTrack[]): number {
+export function nextTrack(id: NodeId, live: readonly SpineTrack[]): number {
   const setup = shownSetup(id);
   const used = new Set<number>([
     ...live.map((track) => track.index),
     ...setup.tracks.keys(),
     ...setup.pending,
   ]);
+
+  const after = used.size === 0 ? 0 : Math.max(...used) + 1;
+  if (after <= MAX_TRACK_INDEX) return after;
 
   let index = 0;
   while (used.has(index)) index += 1;

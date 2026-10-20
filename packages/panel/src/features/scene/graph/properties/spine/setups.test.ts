@@ -8,6 +8,7 @@ import {
   forgetSetups,
   moveDraft,
   NEW_TRACK,
+  nextTrack,
   originalWasVisible,
   rememberOriginalVisible,
   setDraft,
@@ -239,5 +240,37 @@ describe('moveDraft', () => {
     expect(moveDraft(ID, 0, -1, { ...NEW_TRACK })).toBe(false);
     expect(moveDraft(ID, 0, 1.5, { ...NEW_TRACK })).toBe(false);
     expect(moveDraft(ID, 0, 0, { ...NEW_TRACK })).toBe(false);
+  });
+});
+
+/**
+ * Where "Add track" puts a row.
+ *
+ * Past the last one rather than into the first gap: with a handful of tracks
+ * running and a hole among them, a row slotted into the hole lands somewhere in
+ * the middle of the list and has to be looked for.
+ */
+describe('nextTrack', () => {
+  beforeEach(() => {
+    forgetSetups();
+  });
+
+  it('starts at zero on a skeleton running nothing', () => {
+    expect(nextTrack(ID, [])).toBe(0);
+  });
+
+  it('goes after the last track, not into a gap', () => {
+    expect(nextTrack(ID, [track({ index: 0 }), track({ index: 3 })])).toBe(4);
+  });
+
+  it('counts the rows added here as well as the running ones', () => {
+    addPendingTrack(ID, 5);
+
+    expect(nextTrack(ID, [track({ index: 0 })])).toBe(6);
+  });
+
+  /** The end is past what a skeleton may use, so a gap is all there is left. */
+  it('falls back to a gap once the end is out of range', () => {
+    expect(nextTrack(ID, [track({ index: 0 }), track({ index: 32 })])).toBe(1);
   });
 });
