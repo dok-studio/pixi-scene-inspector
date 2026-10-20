@@ -311,7 +311,7 @@ export const en: HelpContent = {
             },
             {
               term: '{{transform}} Transform',
-              text: 'The frame moves the node, the handles scale it, the space just outside a corner turns it.',
+              text: 'The frame moves the node, the handles scale it, the space just outside a corner turns it. Hold `Shift` to move along one axis, scale a corner freely or turn in 15° steps; `Alt` scales from the middle. `Esc` mid-drag puts the node back.',
             },
             {
               term: '{{nodeCounts}} Node counts',

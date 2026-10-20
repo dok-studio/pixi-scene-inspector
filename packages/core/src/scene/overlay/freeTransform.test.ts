@@ -244,6 +244,37 @@ describe('the free transform frame', () => {
     expect(node.scale.y).toBeCloseTo(1, 6);
   });
 
+  it('keeps a move to one axis while Shift is down', () => {
+    const node = fakeNode(BOUNDS, { x: 100, y: 100 });
+    const { element } = armed(node);
+    const inside = body(element);
+
+    press(inside, 120, 120);
+    drag(inside, 200, 130, { shiftKey: true });
+
+    expect(node.position).toEqual({ x: 180, y: 100 });
+  });
+
+  /**
+   * No `pointermove` comes with a key, so the frame has to answer the key
+   * itself — or the lock would wait for the pointer to twitch before it held.
+   */
+  it('takes Shift pressed and let go mid-drag without the pointer moving', () => {
+    const node = fakeNode(BOUNDS, { x: 100, y: 100 });
+    const { element } = armed(node);
+    const inside = body(element);
+
+    press(inside, 120, 120);
+    drag(inside, 200, 130);
+    expect(node.position).toEqual({ x: 180, y: 110 });
+
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Shift', shiftKey: true }));
+    expect(node.position).toEqual({ x: 180, y: 100 });
+
+    window.dispatchEvent(new KeyboardEvent('keyup', { key: 'Shift', shiftKey: false }));
+    expect(node.position).toEqual({ x: 180, y: 110 });
+  });
+
   it('puts the node back when the drag is called off with Escape', () => {
     const node = fakeNode(BOUNDS, { x: 100, y: 100 });
     const { element } = armed(node);

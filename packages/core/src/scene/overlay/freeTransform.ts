@@ -74,6 +74,14 @@ interface Session {
   start: DragStart;
   node: Node;
   pointerId: number;
+  /**
+   * Where the pointer last was, in canvas coordinates.
+   *
+   * Pressing or letting go of Shift changes the answer without moving the
+   * pointer, and no `pointermove` comes to say so — so the key has to redo the
+   * last move itself, from here.
+   */
+  pointer: Point;
 }
 
 export interface FreeTransform {
@@ -282,8 +290,41 @@ export function createFreeTransform(
     }
   };
 
+  /** Solves the gesture for this pointer and writes the answer onto the node. */
+  const step = (pointer: Point, modifiers: Modifiers): void => {
+    const current = adapter();
+    if (session === null || current === null) return;
+
+    session.pointer = pointer;
+    const { grab, start } = session;
+    const change =
+      grab.kind === 'move'
+        ? movedTo(start, pointer, modifiers)
+        : grab.kind === 'rotate'
+          ? rotatedTo(start, pointer, modifiers)
+          : scaledTo(start, grab.handle, pointer, modifiers);
+
+    if (change !== null) write(current, session.node, change);
+
+    // The scene may be frozen — an edit that lands and is never drawn is an
+    // edit nobody can see they are making.
+    redraw();
+  };
+
+  /** Shift pressed or let go mid-drag: the same pointer, a different answer. */
+  const onShift = (event: KeyboardEvent): void => {
+    if (session === null || event.key !== 'Shift' || event.repeat) return;
+
+    step(session.pointer, { shift: event.shiftKey, alt: event.altKey });
+  };
+
   const onKeyDown = (event: KeyboardEvent): void => {
-    if (session === null || event.key !== 'Escape') return;
+    if (session === null) return;
+    if (event.key === 'Shift') {
+      onShift(event);
+      return;
+    }
+    if (event.key !== 'Escape') return;
 
     // Taken from the page: a game that closes its own menu on Escape must not
     // do so because a drag was called off over its canvas.
@@ -303,6 +344,7 @@ export function createFreeTransform(
       // The pointer is already gone — a cancelled gesture, a lost device.
     }
     window.removeEventListener('keydown', onKeyDown, true);
+    window.removeEventListener('keyup', onShift, true);
     session = null;
   }
 
@@ -325,7 +367,7 @@ export function createFreeTransform(
     event.preventDefault();
     event.stopPropagation();
 
-    session = { grab, start, node: target, pointerId: event.pointerId };
+    session = { grab, start, node: target, pointerId: event.pointerId, pointer };
     // On the root rather than on the handle: the pointer leaves a nine-pixel
     // square immediately, and every move after that has to keep coming here.
     try {
@@ -335,31 +377,17 @@ export function createFreeTransform(
       // the overlay, which covers the canvas.
     }
     window.addEventListener('keydown', onKeyDown, true);
+    window.addEventListener('keyup', onShift, true);
   };
 
   const onPointerMove = (event: PointerEvent): void => {
     if (session === null || event.pointerId !== session.pointerId) return;
 
-    const current = adapter();
     const pointer = toCanvas(event.clientX, event.clientY);
-    if (current === null || pointer === null) return;
+    if (adapter() === null || pointer === null) return;
 
     event.preventDefault();
-
-    const modifiers: Modifiers = { shift: event.shiftKey, alt: event.altKey };
-    const { grab, start } = session;
-    const change =
-      grab.kind === 'move'
-        ? movedTo(start, pointer)
-        : grab.kind === 'rotate'
-          ? rotatedTo(start, pointer, modifiers)
-          : scaledTo(start, grab.handle, pointer, modifiers);
-
-    if (change !== null) write(current, session.node, change);
-
-    // The scene may be frozen — an edit that lands and is never drawn is an
-    // edit nobody can see they are making.
-    redraw();
+    step(pointer, { shift: event.shiftKey, alt: event.altKey });
   };
 
   const onPointerUp = (event: PointerEvent): void => {

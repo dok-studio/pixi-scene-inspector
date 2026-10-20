@@ -95,7 +95,7 @@ export interface DragStart {
 export interface Modifiers {
   /**
    * Let the two axes go their own way; on a turn, land on a whole step of
-   * `SNAP`.
+   * `SNAP`; on a move, keep to one axis.
    *
    * **A corner keeps the proportions unless this is held** — the opposite of
    * the way an image editor's Shift used to work, and the way the same editors
@@ -140,17 +140,37 @@ function sign(value: number): number {
  * The delta is taken in the parent's space rather than the canvas's, so a node
  * inside a container turned 30° follows the pointer instead of setting off at
  * an angle to it.
+ *
+ * **Shift keeps it to one axis** — whichever the pointer has gone further
+ * along, decided afresh on every move, the way Figma and Photoshop do it. The
+ * axes are the parent's, so exactly one of `position.x` and `position.y`
+ * changes; under an untransformed parent they are the canvas's as well.
+ *
+ * **The answer is in whole pixels of the parent.** A pointer mapped through a
+ * scaled canvas lands on fractions, and `x: 312.4871` is a number nobody meant
+ * and everybody then has to tidy up before pasting it into the code. A node
+ * that started on a fraction lands on a whole number with the first move.
+ *
+ * Only here: a handle or a turn writes a position too, but that one is what
+ * keeps the anchor still, and rounding it would shake the anchor about.
  */
-export function movedTo(start: DragStart, pointer: Point): Change | null {
+export function movedTo(start: DragStart, pointer: Point, modifiers: Modifiers): Change | null {
   const back = invert(start.parent);
   if (back === null) return null;
 
-  const delta = applyVector(back, {
+  const free = applyVector(back, {
     x: pointer.x - start.pointer.x,
     y: pointer.y - start.pointer.y,
   });
+  const alongX = Math.abs(free.x) >= Math.abs(free.y);
+  const delta = !modifiers.shift ? free : alongX ? { x: free.x, y: 0 } : { x: 0, y: free.y };
 
-  return { position: { x: start.position.x + delta.x, y: start.position.y + delta.y } };
+  return {
+    position: {
+      x: Math.round(start.position.x + delta.x),
+      y: Math.round(start.position.y + delta.y),
+    },
+  };
 }
 
 /**

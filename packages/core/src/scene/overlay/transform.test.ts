@@ -109,16 +109,19 @@ const AWKWARD_PARENT: Matrix = { a: 0, b: 2, c: -2, d: 0, tx: 40, ty: -10 };
 const MIRRORED_PARENT: Matrix = { a: -1, b: 0, c: 0, d: 1, tx: 300, ty: 0 };
 
 describe('movedTo', () => {
+  const NONE = { shift: false, alt: false };
+  const SHIFT = { shift: true, alt: false };
+
   it('follows the pointer one for one under an untransformed parent', () => {
     const from = start({ position: { x: 10, y: 20 } });
-    const change = movedTo(from, { x: 35, y: 5 });
+    const change = movedTo(from, { x: 35, y: 5 }, NONE);
 
     expect(change?.position).toEqual({ x: 45, y: 25 });
   });
 
   it('measures the delta in the parent, not on the canvas', () => {
     const from = start({ position: { x: 10, y: 20 } }, AWKWARD_PARENT);
-    const change = movedTo(from, { x: 0, y: 8 });
+    const change = movedTo(from, { x: 0, y: 8 }, NONE);
     expect(change).not.toBeNull();
 
     // The parent turns and doubles, so eight canvas pixels down the screen are
@@ -130,9 +133,36 @@ describe('movedTo', () => {
     });
   });
 
+  /** Shift: whichever axis the pointer has gone further along, and only that one. */
+  it('keeps to the longer axis while Shift is held', () => {
+    const from = start({ position: { x: 10, y: 20 } });
+
+    expect(movedTo(from, { x: 35, y: 5 }, SHIFT)?.position).toEqual({ x: 45, y: 20 });
+    expect(movedTo(from, { x: 3, y: -12 }, SHIFT)?.position).toEqual({ x: 10, y: 8 });
+  });
+
+  /**
+   * The axes are the parent's: eight canvas pixels down the screen are the
+   * node's own x under this parent, so it is `position.y` that must stay put.
+   */
+  it('locks to the parent’s axes, not the canvas’s', () => {
+    const from = start({ position: { x: 10, y: 20 } }, AWKWARD_PARENT);
+    const change = movedTo(from, { x: 1, y: 8 }, SHIFT);
+
+    expect(change?.position.y).toBe(20);
+    expect(change?.position.x).not.toBe(10);
+  });
+
+  it('lands on whole numbers, wherever the pointer and the node started', () => {
+    const from = start({ position: { x: 10.4, y: 20.6 } });
+    const change = movedTo(from, { x: 3.3, y: -1.7 }, NONE);
+
+    expect(change?.position).toEqual({ x: 14, y: 19 });
+  });
+
   it('gives up on a parent flattened to nothing', () => {
     const flat: Matrix = { a: 0, b: 0, c: 0, d: 1, tx: 0, ty: 0 };
-    expect(movedTo(start({}, flat), { x: 5, y: 5 })).toBeNull();
+    expect(movedTo(start({}, flat), { x: 5, y: 5 }, NONE)).toBeNull();
   });
 });
 
